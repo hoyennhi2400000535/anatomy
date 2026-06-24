@@ -1,496 +1,742 @@
- <!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anatomy Match Game</title>
-    
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+import React, { useState, useRef, useEffect } from 'react';
+import { BookOpen, CheckSquare, Zap, Image as ImageIcon, ChevronRight, CheckCircle, XCircle, RefreshCw, Upload, Plus, X } from 'lucide-react';
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        medical: {
-                            50: '#f0fdfa',
-                            100: '#ccfbf1',
-                            500: '#14b8a6',
-                            600: '#0d9488',
-                            900: '#134e4a',
-                        }
-                    }
-                }
+// --- DATA: LÝ THUYẾT ---
+const theoryData = [
+  {
+    id: 1,
+    name: "Hệ xương (Skeletal System)",
+    content: (
+      <div className="space-y-4">
+        <p><strong>Gồm khoảng:</strong> 206 xương ở người trưởng thành.</p>
+        <div><strong>Chức năng:</strong>
+          <ul className="list-disc pl-5 mt-1 space-y-1">
+            <li>Nâng đỡ cơ thể.</li>
+            <li>Bảo vệ các cơ quan (sọ bảo vệ não, lồng ngực bảo vệ tim phổi).</li>
+            <li>Nơi bám của cơ giúp vận động.</li>
+            <li>Dự trữ khoáng chất (Ca²⁺, P).</li>
+            <li>Tạo máu tại tủy xương đỏ.</li>
+          </ul>
+        </div>
+        <div><strong>Phân chia:</strong>
+          <ul className="list-disc pl-5 mt-1 space-y-1">
+            <li>Xương đầu mặt.</li>
+            <li>Xương thân mình (cột sống, xương sườn, xương ức).</li>
+            <li>Xương chi trên.</li>
+            <li>Xương chi dưới.</li>
+          </ul>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: 2,
+    name: "Hệ cơ (Muscular System)",
+    content: (
+      <div className="space-y-4">
+        <p><strong>Số lượng:</strong> Có khoảng 600 cơ vân.</p>
+        <div><strong>Chức năng:</strong>
+          <ul className="list-disc pl-5 mt-1 space-y-1">
+            <li>Vận động cơ thể.</li>
+            <li>Duy trì tư thế.</li>
+            <li>Sinh nhiệt.</li>
+          </ul>
+        </div>
+        <div><strong>3 loại cơ:</strong>
+          <ul className="list-decimal pl-5 mt-1 space-y-1">
+            <li><strong>Cơ vân (cơ xương):</strong> vận động theo ý muốn.</li>
+            <li><strong>Cơ trơn:</strong> thành ruột, mạch máu, bàng quang (không theo ý muốn).</li>
+            <li><strong>Cơ tim:</strong> chỉ có ở tim.</li>
+          </ul>
+        </div>
+        <p className="italic text-gray-600 bg-gray-50 p-3 rounded border-l-4 border-blue-500">Cơ hoạt động nhờ sự co rút của các sợi cơ.</p>
+      </div>
+    )
+  },
+  {
+    id: 3,
+    name: "Hệ mạch máu - tuần hoàn",
+    content: (
+      <div className="space-y-4">
+        <div><strong>Thành phần:</strong>
+          <ul className="list-disc pl-5 mt-1 space-y-1">
+            <li>Tim.</li><li>Động mạch.</li><li>Tĩnh mạch.</li><li>Mao mạch.</li>
+          </ul>
+        </div>
+        <div><strong>Chức năng:</strong>
+          <ul className="list-disc pl-5 mt-1 space-y-1">
+            <li>Vận chuyển oxy, chất dinh dưỡng.</li>
+            <li>Đưa chất thải đến cơ quan bài tiết.</li>
+            <li>Điều hòa thân nhiệt.</li>
+          </ul>
+        </div>
+        <div><strong>Đường đi máu:</strong>
+          <ol className="list-decimal pl-5 mt-1 space-y-2">
+            <li><strong>Tuần hoàn phổi:</strong> Thất phải → động mạch phổi → phổi → tĩnh mạch phổi → nhĩ trái.</li>
+            <li><strong>Tuần hoàn hệ thống:</strong> Thất trái → động mạch chủ → cơ quan → tĩnh mạch chủ → nhĩ phải.</li>
+          </ol>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: 4,
+    name: "Hệ thần kinh (Nervous System)",
+    content: (
+      <div className="space-y-4">
+        <p><strong>Chức năng:</strong> Điều khiển và phối hợp hoạt động của cơ thể.</p>
+        <div><strong>Phân chia:</strong>
+          <div className="mt-2 space-y-3">
+            <div className="bg-blue-50 p-3 rounded">
+              <strong>Hệ thần kinh trung ương:</strong>
+              <ul className="list-disc pl-5 mt-1"><li>Não.</li><li>Tủy sống.</li></ul>
+            </div>
+            <div className="bg-green-50 p-3 rounded">
+              <strong>Hệ thần kinh ngoại biên:</strong>
+              <ul className="list-disc pl-5 mt-1"><li>12 đôi dây thần kinh sọ.</li><li>31 đôi dây thần kinh tủy.</li></ul>
+            </div>
+            <div className="bg-purple-50 p-3 rounded">
+              <strong>Hệ thần kinh tự chủ:</strong>
+              <ul className="list-disc pl-5 mt-1">
+                <li><strong>Giao cảm:</strong> Ví dụ tăng nhịp tim, giãn đồng tử.</li>
+                <li><strong>Phó giao cảm:</strong> Ví dụ giảm nhịp tim, tăng tiêu hóa.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: 5,
+    name: "Hệ hô hấp (Respiratory System)",
+    content: (
+      <div className="space-y-4">
+        <div><strong>Cơ quan:</strong>
+          <ul className="list-disc pl-5 mt-1">
+            <li>Mũi → Hầu → Thanh quản → Khí quản → Phế quản → Phổi.</li>
+          </ul>
+        </div>
+        <p><strong>Chức năng:</strong> Trao đổi khí O₂ và CO₂.</p>
+        <p className="font-semibold text-blue-600">Đơn vị chức năng: Phế nang.</p>
+      </div>
+    )
+  },
+  {
+    id: 6,
+    name: "Hệ tiêu hóa (Digestive System)",
+    content: (
+      <div className="space-y-4">
+        <div><strong>Đường tiêu hóa:</strong>
+          <p className="bg-gray-100 p-2 rounded mt-1">Miệng → Hầu → Thực quản → Dạ dày → Ruột non → Ruột già → Trực tràng → Hậu môn.</p>
+        </div>
+        <div><strong>Tuyến tiêu hóa phụ:</strong>
+          <ul className="list-disc pl-5 mt-1"><li>Gan.</li><li>Túi mật.</li><li>Tụy.</li></ul>
+        </div>
+        <div><strong>Chức năng:</strong>
+          <ul className="list-disc pl-5 mt-1">
+            <li>Tiêu hóa thức ăn.</li><li>Hấp thu chất dinh dưỡng.</li><li>Thải phân.</li>
+          </ul>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: 7,
+    name: "Hệ tiết niệu (Urinary System)",
+    content: (
+      <div className="space-y-4">
+        <div><strong>Cơ quan:</strong>
+          <ul className="list-disc pl-5 mt-1">
+            <li>2 thận.</li><li>2 niệu quản.</li><li>Bàng quang.</li><li>Niệu đạo.</li>
+          </ul>
+        </div>
+        <div><strong>Chức năng:</strong>
+          <ul className="list-disc pl-5 mt-1">
+            <li>Tạo nước tiểu.</li><li>Điều hòa nước và điện giải.</li><li>Điều hòa huyết áp.</li>
+          </ul>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: 8,
+    name: "Hệ sinh dục (Reproductive System)",
+    content: (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="border p-3 rounded bg-blue-50">
+            <strong>Nam:</strong>
+            <ul className="list-disc pl-5 mt-1"><li>Tinh hoàn.</li><li>Mào tinh.</li><li>Ống dẫn tinh.</li><li>Dương vật.</li></ul>
+          </div>
+          <div className="border p-3 rounded bg-pink-50">
+            <strong>Nữ:</strong>
+            <ul className="list-disc pl-5 mt-1"><li>Buồng trứng.</li><li>Vòi tử cung.</li><li>Tử cung.</li><li>Âm đạo.</li></ul>
+          </div>
+        </div>
+        <div><strong>Chức năng:</strong>
+          <ul className="list-disc pl-5 mt-1"><li>Sinh sản.</li><li>Tiết hormon sinh dục.</li></ul>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: 9,
+    name: "Hệ nội tiết (Endocrine System)",
+    content: (
+      <div className="space-y-4">
+        <div><strong>Các tuyến chính:</strong>
+          <ul className="list-disc pl-5 mt-1 grid grid-cols-2">
+            <li>Tuyến yên.</li><li>Tuyến giáp.</li><li>Cận giáp.</li><li>Thượng thận.</li><li>Tuyến tụy nội tiết.</li><li>Tuyến sinh dục.</li>
+          </ul>
+        </div>
+        <p><strong>Chức năng:</strong> Tiết hormon điều hòa hoạt động cơ thể.</p>
+      </div>
+    )
+  },
+  {
+    id: 10,
+    name: "Hệ bạch huyết - miễn dịch",
+    content: (
+      <div className="space-y-4">
+        <div><strong>Cơ quan:</strong>
+          <ul className="list-disc pl-5 mt-1">
+            <li>Hạch bạch huyết.</li><li>Lách.</li><li>Tuyến ức.</li><li>Amidan.</li>
+          </ul>
+        </div>
+        <div><strong>Chức năng:</strong>
+          <ul className="list-disc pl-5 mt-1">
+            <li>Bảo vệ cơ thể chống nhiễm khuẩn.</li><li>Dẫn lưu dịch mô trở về tuần hoàn.</li>
+          </ul>
+        </div>
+      </div>
+    )
+  }
+];
+
+// --- DATA: TRẮC NGHIỆM ---
+const quizDatabase = [
+  {
+    question: "Hệ xương của người trưởng thành gồm khoảng bao nhiêu xương?",
+    options: ["106", "206", "306", "600"],
+    answer: 1,
+    explanation: "Người trưởng thành có khoảng 206 xương. Trẻ sơ sinh có nhiều xương hơn (khoảng 300) nhưng chúng hợp nhất lại khi lớn lên."
+  },
+  {
+    question: "Loại cơ nào KHÔNG hoạt động theo ý muốn của chúng ta?",
+    options: ["Cơ vân", "Cơ xương", "Cơ trơn", "Cơ bám da mặt"],
+    answer: 2,
+    explanation: "Cơ trơn (có ở thành mạch máu, ruột, bàng quang...) hoạt động tự động không theo ý muốn. Cơ vân/cơ xương vận động theo ý muốn."
+  },
+  {
+    question: "Đường đi của máu trong tuần hoàn phổi (tuần hoàn nhỏ) bắt đầu từ đâu?",
+    options: ["Tâm thất trái", "Tâm nhĩ phải", "Tâm thất phải", "Tâm nhĩ trái"],
+    answer: 2,
+    explanation: "Máu nghèo O2 từ Tâm thất phải → Động mạch phổi → Phổi (trao đổi khí) → Tĩnh mạch phổi → Tâm nhĩ trái."
+  },
+  {
+    question: "Hệ thần kinh ngoại biên bao gồm những thành phần nào?",
+    options: ["Não và tủy sống", "12 đôi dây TK sọ và 31 đôi dây TK tủy", "Hệ giao cảm và phó giao cảm", "Chỉ gồm các dây thần kinh sọ"],
+    answer: 1,
+    explanation: "Hệ TK ngoại biên gồm 12 đôi dây thần kinh sọ (xuất phát từ não) và 31 đôi dây thần kinh tủy (xuất phát từ tủy sống)."
+  },
+  {
+    question: "Đơn vị chức năng của hệ hô hấp, nơi diễn ra sự trao đổi khí là gì?",
+    options: ["Khí quản", "Phế quản", "Thanh quản", "Phế nang"],
+    answer: 3,
+    explanation: "Phế nang là những túi khí nhỏ li ti ở phổi, có mạng lưới mao mạch bao quanh dày đặc, là nơi trực tiếp trao đổi O2 và CO2."
+  },
+  {
+    question: "Cơ quan nào sau đây KHÔNG thuộc ống tiêu hóa?",
+    options: ["Thực quản", "Dạ dày", "Tụy", "Ruột non"],
+    answer: 2,
+    explanation: "Tụy (cùng với Gan, Túi mật) là tuyến tiêu hóa phụ, tiết dịch đổ vào ống tiêu hóa chứ thức ăn không đi trực tiếp qua Tụy."
+  },
+  {
+    question: "Chức năng của hệ giao cảm là gì?",
+    options: ["Tăng nhịp tim, giãn đồng tử", "Giảm nhịp tim, tăng tiêu hóa", "Tiết hormon sinh dục", "Tạo máu"],
+    answer: 0,
+    explanation: "Hệ giao cảm chuẩn bị cơ thể cho trạng thái 'chiến đấu hoặc bỏ chạy', làm tăng nhịp tim, giãn đồng tử, tăng nhịp thở."
+  }
+];
+
+// --- COMPONENT: LÝ THUYẾT ---
+const TheorySection = () => {
+  const [activeId, setActiveId] = useState(1);
+
+  return (
+    <div className="flex flex-col md:flex-row h-full gap-4">
+      <div className="w-full md:w-1/3 bg-white rounded-xl shadow overflow-hidden flex flex-col h-[40vh] md:h-auto">
+        <div className="bg-blue-600 text-white p-4 font-bold text-lg">Danh mục hệ cơ quan</div>
+        <div className="overflow-y-auto flex-1 p-2 space-y-1">
+          {theoryData.map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveId(item.id)}
+              className={`w-full text-left px-4 py-3 rounded-lg transition-colors flex items-center justify-between ${
+                activeId === item.id ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-gray-100'
+              }`}
+            >
+              <span className="truncate pr-2">{item.name}</span>
+              {activeId === item.id && <ChevronRight size={18} />}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="w-full md:w-2/3 bg-white rounded-xl shadow flex flex-col h-[50vh] md:h-auto">
+        {theoryData.map(item => (
+          item.id === activeId && (
+            <div key={item.id} className="p-6 overflow-y-auto h-full flex-1">
+              <h2 className="text-2xl font-bold text-gray-800 border-b pb-4 mb-4">{item.name}</h2>
+              <div className="text-gray-700 text-lg leading-relaxed">
+                {item.content}
+              </div>
+            </div>
+          )
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// --- COMPONENT: TRẮC NGHIỆM ---
+const QuizSection = () => {
+  const [questions, setQuestions] = useState(quizDatabase);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [isAnswered, setIsAnswered] = useState(false);
+  const [wrongQuestions, setWrongQuestions] = useState([]);
+  const [mode, setMode] = useState('all'); // 'all' or 'wrong'
+  const [quizFinished, setQuizFinished] = useState(false);
+  const [score, setScore] = useState(0);
+
+  const currentQ = questions[currentIndex];
+
+  const handleSelect = (index) => {
+    if (isAnswered) return;
+    setSelectedOption(index);
+    setIsAnswered(true);
+
+    if (index === currentQ.answer) {
+      if (mode === 'all') setScore(s => s + 1);
+    } else {
+      // Lưu câu sai
+      if (!wrongQuestions.find(q => q.question === currentQ.question)) {
+        setWrongQuestions([...wrongQuestions, currentQ]);
+      }
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setSelectedOption(null);
+      setIsAnswered(false);
+    } else {
+      setQuizFinished(true);
+    }
+  };
+
+  const startWrongMode = () => {
+    if (wrongQuestions.length === 0) return;
+    setQuestions(wrongQuestions);
+    setMode('wrong');
+    setCurrentIndex(0);
+    setSelectedOption(null);
+    setIsAnswered(false);
+    setQuizFinished(false);
+    setScore(0);
+  };
+
+  const restartQuiz = () => {
+    setQuestions(quizDatabase);
+    setMode('all');
+    setCurrentIndex(0);
+    setSelectedOption(null);
+    setIsAnswered(false);
+    setQuizFinished(false);
+    setScore(0);
+  };
+
+  if (quizFinished) {
+    return (
+      <div className="bg-white rounded-xl shadow p-8 text-center max-w-2xl mx-auto mt-10">
+        <h2 className="text-3xl font-bold mb-4">Hoàn thành bài test!</h2>
+        {mode === 'all' && (
+          <p className="text-2xl mb-6">Điểm của bạn: <span className="font-bold text-blue-600">{score}/{questions.length}</span></p>
+        )}
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <button onClick={restartQuiz} className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2">
+            <RefreshCw size={20} /> Làm lại từ đầu
+          </button>
+          {wrongQuestions.length > 0 && (
+            <button onClick={startWrongMode} className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 flex items-center justify-center gap-2">
+              <XCircle size={20} /> Ôn lại {wrongQuestions.length} câu sai
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto h-full flex flex-col">
+      <div className="flex justify-between items-center mb-4 px-2">
+        <span className="font-semibold text-gray-600">
+          {mode === 'wrong' ? '🔴 Đang ôn câu sai' : '🟢 Bài thi tổng hợp'}
+        </span>
+        <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-bold">
+          Câu {currentIndex + 1} / {questions.length}
+        </span>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 flex-1 flex flex-col">
+        <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">{currentQ.question}</h3>
+        
+        <div className="space-y-3 mb-6 flex-1">
+          {currentQ.options.map((opt, idx) => {
+            let btnClass = "w-full text-left p-4 rounded-xl border-2 transition-all ";
+            if (!isAnswered) {
+              btnClass += "border-gray-200 hover:border-blue-400 hover:bg-blue-50";
+            } else {
+              if (idx === currentQ.answer) {
+                btnClass += "border-green-500 bg-green-50 text-green-800 font-semibold";
+              } else if (idx === selectedOption) {
+                btnClass += "border-red-500 bg-red-50 text-red-800";
+              } else {
+                btnClass += "border-gray-200 opacity-50";
+              }
             }
-        }
-    </script>
-    <style>
-        body { background-color: #f8fafc; overflow-x: hidden; }
-        .target-dot {
-            transition: all 0.2s ease;
-            transform: translate(-50%, -50%);
-        }
-        .target-dot:hover { transform: translate(-50%, -50%) scale(1.2); }
-        .pulsate { animation: pulse-border 1.5s infinite; }
-        @keyframes pulse-border {
-            0% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(20, 184, 166, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0); }
-        }
-        /* Custom scrollbar for label list */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px;}
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
-
-        // --- DỮ LIỆU GIẢI PHẪU (ANATOMY DATA) ---
-        const DATABASE = {
-            skeletal: {
-                name: "Hệ Xương",
-                icon: "ph-bone",
-                image: "https://placehold.co/400x800/e2e8f0/475569?text=M%C3%B4+h%C3%ACnh+H%E1%BB%87+X%C6%B0%C6%A1ng", // Placeholder for actual human body image
-                items: [
-                    { id: 'skull', name: 'Xương sọ', x: 50, y: 12, desc: 'Bảo vệ não bộ và tạo hình khuôn mặt.' },
-                    { id: 'clavicle', name: 'Xương đòn', x: 35, y: 22, desc: 'Nối xương ức với xương bả vai.' },
-                    { id: 'ribs', name: 'Lồng ngực', x: 50, y: 35, desc: 'Bảo vệ tim, phổi và hỗ trợ hô hấp.' },
-                    { id: 'spine', name: 'Cột sống', x: 50, y: 48, desc: 'Trục nâng đỡ cơ thể, bảo vệ tủy sống.' },
-                    { id: 'pelvis', name: 'Xương chậu', x: 50, y: 58, desc: 'Chuyển trọng lượng từ thân xuống chân.' },
-                    { id: 'femur', name: 'Xương đùi', x: 40, y: 72, desc: 'Xương dài và khỏe nhất cơ thể người.' },
-                    { id: 'humerus', name: 'Xương cánh tay', x: 25, y: 38, desc: 'Nối bả vai với khuỷu tay.' },
-                ]
-            },
-            digestive: {
-                name: "Hệ Tiêu Hóa",
-                icon: "ph-stomach",
-                image: "https://placehold.co/400x800/fecdd3/881337?text=M%C3%B4+h%C3%ACnh+H%E1%BB%87+Ti%C3%AAu+H%C3%B3a",
-                items: [
-                    { id: 'esophagus', name: 'Thực quản', x: 50, y: 25, desc: 'Ống dẫn thức ăn từ miệng xuống dạ dày.' },
-                    { id: 'liver', name: 'Gan', x: 40, y: 42, desc: 'Lọc máu, tiết mật và chuyển hóa chất.' },
-                    { id: 'stomach', name: 'Dạ dày', x: 60, y: 45, desc: 'Nơi chứa và tiêu hóa sơ bộ thức ăn.' },
-                    { id: 'pancreas', name: 'Tuyến tụy', x: 55, y: 50, desc: 'Tiết dịch tiêu hóa và hormone insulin.' },
-                    { id: 'large_intestine', name: 'Ruột già', x: 50, y: 60, desc: 'Hấp thụ nước và tạo phân.' },
-                    { id: 'small_intestine', name: 'Ruột non', x: 50, y: 70, desc: 'Hấp thụ phần lớn chất dinh dưỡng.' },
-                ]
-            }
-        };
-
-        const GAME_MODES = {
-            PRACTICE: 'Luyện tập',
-            CHALLENGE: 'Thử thách'
-        };
-
-        // --- COMPONENTS ---
-
-        const App = () => {
-            const [gameState, setGameState] = useState('menu'); // menu, playing, results
-            const [selectedSystem, setSelectedSystem] = useState(null);
-            const [selectedMode, setSelectedMode] = useState(null);
-            
-            // Gameplay state
-            const [placedItems, setPlacedItems] = useState({}); // { targetId: itemId }
-            const [selectedLabelId, setSelectedLabelId] = useState(null);
-            const [timeLeft, setTimeLeft] = useState(0);
-            const [timerActive, setTimerActive] = useState(false);
-            const [scoreData, setScoreData] = useState(null);
-
-            // Timer logic
-            useEffect(() => {
-                let interval;
-                if (timerActive && timeLeft > 0) {
-                    interval = setInterval(() => {
-                        setTimeLeft(prev => prev - 1);
-                    }, 1000);
-                } else if (timerActive && timeLeft === 0) {
-                    setTimerActive(false);
-                    submitGame(); // Auto submit when time runs out
-                }
-                return () => clearInterval(interval);
-            }, [timerActive, timeLeft]);
-
-            const startGame = (systemId, mode) => {
-                setSelectedSystem(systemId);
-                setSelectedMode(mode);
-                setPlacedItems({});
-                setSelectedLabelId(null);
-                setScoreData(null);
-                setGameState('playing');
-
-                if (mode === GAME_MODES.CHALLENGE) {
-                    setTimeLeft(DATABASE[systemId].items.length * 10); // 10 seconds per item
-                    setTimerActive(true);
-                } else {
-                    setTimeLeft(0);
-                    setTimerActive(false);
-                }
-            };
-
-            const handleLabelClick = (item) => {
-                // If it's already placed, remove it
-                const placedTarget = Object.keys(placedItems).find(key => placedItems[key] === item.id);
-                if (placedTarget) {
-                    const newPlaced = { ...placedItems };
-                    delete newPlaced[placedTarget];
-                    setPlacedItems(newPlaced);
-                    setSelectedLabelId(null);
-                    return;
-                }
-
-                // Select for placement
-                setSelectedLabelId(item.id === selectedLabelId ? null : item.id);
-            };
-
-            const handleTargetClick = (targetItem) => {
-                if (selectedLabelId) {
-                    // Place the selected label here
-                    setPlacedItems(prev => {
-                        const newPlaced = { ...prev };
-                        // Remove if this label is placed elsewhere
-                        const existingTarget = Object.keys(newPlaced).find(key => newPlaced[key] === selectedLabelId);
-                        if (existingTarget) delete newPlaced[existingTarget];
-                        
-                        newPlaced[targetItem.id] = selectedLabelId;
-                        return newPlaced;
-                    });
-                    setSelectedLabelId(null); // Deselect after placing
-                } else if (placedItems[targetItem.id]) {
-                    // Clicked a filled target without a selected label -> remove the label
-                    setPlacedItems(prev => {
-                        const newPlaced = { ...prev };
-                        delete newPlaced[targetItem.id];
-                        return newPlaced;
-                    });
-                }
-            };
-
-            const submitGame = () => {
-                setTimerActive(false);
-                const system = DATABASE[selectedSystem];
-                let correctCount = 0;
-                const results = system.items.map(item => {
-                    const userPlacedId = placedItems[item.id];
-                    const isCorrect = userPlacedId === item.id;
-                    if (isCorrect) correctCount++;
-                    return {
-                        ...item,
-                        userAnswerId: userPlacedId,
-                        isCorrect: isCorrect
-                    };
-                });
-
-                const total = system.items.length;
-                let score100 = Math.round((correctCount / total) * 100);
-                
-                // Bonus points for challenge mode
-                let timeBonus = 0;
-                if (selectedMode === GAME_MODES.CHALLENGE && correctCount === total) {
-                    timeBonus = timeLeft * 2;
-                    score100 += timeBonus;
-                }
-
-                setScoreData({
-                    correct: correctCount,
-                    total: total,
-                    score: score100,
-                    results: results,
-                    timeBonus: timeBonus
-                });
-                setGameState('results');
-            };
-
-            const resetGame = () => {
-                setGameState('menu');
-            };
-
-            if (gameState === 'menu') {
-                return (
-                    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-medical-50 to-slate-100 p-4">
-                        <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-8">
-                            <div className="text-center mb-10">
-                                <i className="ph-fill ph-heartbeat text-5xl text-medical-500 mb-4 inline-block"></i>
-                                <h1 className="text-4xl font-extrabold text-slate-800 mb-2 tracking-tight">Anatomy Match</h1>
-                                <p className="text-slate-500">Khám phá cơ thể người qua trò chơi ghép nối tương tác</p>
-                            </div>
-
-                            <div className="space-y-8">
-                                <div>
-                                    <h3 className="text-lg font-semibold text-slate-700 mb-4 flex items-center">
-                                        <i className="ph ph-books text-xl mr-2 text-medical-500"></i>
-                                        1. Chọn hệ cơ quan
-                                    </h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {Object.entries(DATABASE).map(([key, data]) => (
-                                            <button 
-                                                key={key}
-                                                onClick={() => setSelectedSystem(key)}
-                                                className={`p-4 rounded-xl border-2 text-left transition-all flex items-center ${selectedSystem === key ? 'border-medical-500 bg-medical-50 text-medical-900 shadow-md' : 'border-slate-200 hover:border-medical-300 hover:bg-slate-50'}`}
-                                            >
-                                                <div className={`w-12 h-12 rounded-full flex items-center justify-center mr-4 ${selectedSystem === key ? 'bg-medical-500 text-white' : 'bg-slate-100 text-slate-600'}`}>
-                                                    <i className={`${data.icon} text-2xl`}></i>
-                                                </div>
-                                                <span className="font-semibold text-lg">{data.name}</span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <h3 className="text-lg font-semibold text-slate-700 mb-4 flex items-center">
-                                        <i className="ph ph-game-controller text-xl mr-2 text-medical-500"></i>
-                                        2. Chọn chế độ chơi
-                                    </h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <button 
-                                            disabled={!selectedSystem}
-                                            onClick={() => startGame(selectedSystem, GAME_MODES.PRACTICE)}
-                                            className="p-4 rounded-xl border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
-                                        >
-                                            <div className="font-bold text-blue-600 mb-1 flex items-center">
-                                                <i className="ph-fill ph-barbell mr-2"></i> Luyện tập
-                                            </div>
-                                            <p className="text-sm text-slate-500">Không giới hạn thời gian, thoải mái thử sai.</p>
-                                        </button>
-                                        <button 
-                                            disabled={!selectedSystem}
-                                            onClick={() => startGame(selectedSystem, GAME_MODES.CHALLENGE)}
-                                            className="p-4 rounded-xl border-2 border-slate-200 hover:border-orange-400 hover:bg-orange-50 text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
-                                        >
-                                            <div className="font-bold text-orange-600 mb-1 flex items-center">
-                                                <i className="ph-fill ph-timer mr-2"></i> Thử thách
-                                            </div>
-                                            <p className="text-sm text-slate-500">Đua với thời gian, nhận điểm thưởng tốc độ.</p>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                );
-            }
-
-            const systemData = DATABASE[selectedSystem];
-            
-            // Helper to get name from ID for labels
-            const getLabelName = (id) => systemData.items.find(i => i.id === id)?.name || "";
 
             return (
-                <div className="min-h-screen bg-slate-50 flex flex-col">
-                    {/* Header */}
-                    <header className="bg-white shadow-sm px-6 py-4 flex justify-between items-center z-10 relative">
-                        <div className="flex items-center space-x-4">
-                            <button onClick={resetGame} className="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition-colors">
-                                <i className="ph ph-arrow-left text-xl"></i>
-                            </button>
-                            <div>
-                                <h2 className="font-bold text-slate-800 text-lg">{systemData.name}</h2>
-                                <span className="text-xs font-medium px-2 py-1 bg-medical-100 text-medical-800 rounded-md">
-                                    {selectedMode}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        {/* Timer / Progress */}
-                        {gameState === 'playing' && selectedMode === GAME_MODES.CHALLENGE && (
-                            <div className={`flex items-center font-bold text-xl ${timeLeft < 10 ? 'text-red-500 pulsate' : 'text-slate-700'}`}>
-                                <i className="ph ph-clock mr-2"></i>
-                                {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-                            </div>
-                        )}
-                        {gameState === 'playing' && selectedMode === GAME_MODES.PRACTICE && (
-                            <div className="text-slate-500 font-medium">
-                                Đã nối: {Object.keys(placedItems).length} / {systemData.items.length}
-                            </div>
-                        )}
-                    </header>
-
-                    {/* Main Content Area */}
-                    <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
-                        
-                        {/* Left: Diagram Area */}
-                        <div className="flex-1 bg-slate-200 relative overflow-auto flex items-center justify-center p-4 border-r border-slate-300">
-                            <div className="relative w-full max-w-[400px] shadow-2xl rounded-lg overflow-hidden bg-white">
-                                <img src={systemData.image} alt={systemData.name} className="w-full h-auto block select-none pointer-events-none opacity-90" />
-                                
-                                {/* Overlay Target Dots */}
-                                {systemData.items.map((item, index) => {
-                                    const placedId = placedItems[item.id];
-                                    const isSelectedForDrop = selectedLabelId && !placedId;
-                                    
-                                    // Status colors for Results mode
-                                    let dotColor = "bg-white border-slate-400 text-slate-600";
-                                    if (gameState === 'results') {
-                                        const result = scoreData.results.find(r => r.id === item.id);
-                                        if (result.isCorrect) dotColor = "bg-green-500 border-green-600 text-white shadow-[0_0_15px_rgba(34,197,94,0.6)]";
-                                        else if (result.userAnswerId) dotColor = "bg-red-500 border-red-600 text-white"; // wrong answer placed
-                                        else dotColor = "bg-yellow-400 border-yellow-500 text-white"; // missed
-                                    } else if (placedId) {
-                                        dotColor = "bg-medical-500 border-medical-600 text-white shadow-md";
-                                    } else if (selectedLabelId) {
-                                        dotColor = "bg-yellow-200 border-yellow-400 text-yellow-700 pulsate cursor-pointer";
-                                    }
-
-                                    return (
-                                        <div 
-                                            key={`target-${item.id}`}
-                                            onClick={() => gameState === 'playing' && handleTargetClick(item)}
-                                            className={`absolute target-dot w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-sm z-10 transition-colors ${dotColor} ${gameState === 'playing' && !placedId ? 'cursor-pointer hover:bg-slate-100' : ''}`}
-                                            style={{ left: `${item.x}%`, top: `${item.y}%` }}
-                                            title={item.name}
-                                        >
-                                            {placedId ? (
-                                                <i className="ph-bold ph-check text-xs"></i>
-                                            ) : (
-                                                <span>{index + 1}</span>
-                                            )}
-                                            
-                                            {/* Show Label if placed */}
-                                            {placedId && gameState !== 'results' && (
-                                                <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs whitespace-nowrap px-2 py-1 rounded pointer-events-none">
-                                                    {getLabelName(placedId)}
-                                                </div>
-                                            )}
-                                            {/* Show Correct Label in results */}
-                                            {gameState === 'results' && (
-                                                 <div className={`absolute top-full mt-1 left-1/2 -translate-x-1/2 text-white text-xs whitespace-nowrap px-2 py-1 rounded font-semibold pointer-events-none ${scoreData.results.find(r=>r.id===item.id).isCorrect ? 'bg-green-600' : 'bg-slate-800'}`}>
-                                                    {item.name}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </div>
-
-                        {/* Right: Sidebar Area */}
-                        <div className="w-full md:w-[350px] bg-white flex flex-col shadow-[-4px_0_15px_rgba(0,0,0,0.05)] z-20">
-                            
-                            {gameState === 'playing' ? (
-                                <>
-                                    <div className="p-4 bg-slate-50 border-b border-slate-200">
-                                        <p className="text-sm text-slate-600 font-medium mb-2">
-                                            <i className="ph-fill ph-info mr-1 text-medical-500"></i> 
-                                            Hướng dẫn: Chạm vào tên cấu trúc, sau đó chạm vào vị trí số tương ứng trên hình.
-                                        </p>
-                                    </div>
-                                    <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                                        {/* Shuffle items array for display so they aren't in order */}
-                                        {useMemo(() => [...systemData.items].sort(() => Math.random() - 0.5), [selectedSystem]).map(item => {
-                                            const isPlaced = Object.values(placedItems).includes(item.id);
-                                            const isSelected = selectedLabelId === item.id;
-                                            
-                                            return (
-                                                <div 
-                                                    key={`label-${item.id}`}
-                                                    onClick={() => handleLabelClick(item)}
-                                                    className={`p-3 rounded-lg border-2 cursor-pointer transition-all flex justify-between items-center
-                                                        ${isPlaced ? 'bg-slate-100 border-slate-200 opacity-50' : 
-                                                          isSelected ? 'bg-medical-50 border-medical-500 shadow-md ring-2 ring-medical-200 ring-offset-1' : 
-                                                          'bg-white border-slate-200 hover:border-medical-300 hover:bg-slate-50'}`}
-                                                >
-                                                    <span className="font-semibold text-slate-700">{item.name}</span>
-                                                    {isPlaced && <i className="ph-fill ph-check-circle text-green-500 text-lg"></i>}
-                                                    {isSelected && <span className="text-xs bg-medical-500 text-white px-2 py-0.5 rounded-full">Đang chọn</span>}
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                    <div className="p-4 border-t border-slate-200 bg-white">
-                                        <button 
-                                            onClick={submitGame}
-                                            className="w-full py-3 bg-medical-600 hover:bg-medical-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex justify-center items-center"
-                                        >
-                                            <i className="ph-bold ph-flag-checkered mr-2 text-xl"></i>
-                                            Nộp bài
-                                        </button>
-                                    </div>
-                                </>
-                            ) : (
-                                /* Results Panel */
-                                <div className="flex-1 flex flex-col overflow-hidden bg-slate-50">
-                                    <div className="p-6 text-center bg-white border-b border-slate-200">
-                                        <h3 className="text-2xl font-black text-slate-800 mb-1">Kết Quả</h3>
-                                        <div className="text-5xl font-black text-medical-500 my-4 flex items-end justify-center">
-                                            {scoreData.score} <span className="text-xl text-slate-400 font-medium ml-1">/100</span>
-                                        </div>
-                                        <div className="flex justify-center space-x-4 text-sm font-medium">
-                                            <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full"><i className="ph-fill ph-check-circle mr-1"></i> {scoreData.correct} đúng</div>
-                                            <div className="bg-red-100 text-red-800 px-3 py-1 rounded-full"><i className="ph-fill ph-x-circle mr-1"></i> {scoreData.total - scoreData.correct} sai</div>
-                                        </div>
-                                        {scoreData.timeBonus > 0 && (
-                                            <div className="mt-2 text-orange-600 font-bold text-sm bg-orange-50 inline-block px-3 py-1 rounded-full">
-                                                <i className="ph-fill ph-lightning"></i> Điểm thưởng tốc độ: +{scoreData.timeBonus}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                                        <h4 className="font-bold text-slate-700 flex items-center uppercase text-sm tracking-wider">
-                                            <i className="ph-bold ph-list-magnifying-glass mr-2"></i> Chi tiết & Giải thích
-                                        </h4>
-                                        {scoreData.results.map((result, idx) => (
-                                            <div key={`res-${result.id}`} className={`p-4 rounded-xl border ${result.isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <span className={`font-bold text-lg ${result.isCorrect ? 'text-green-800' : 'text-red-800'}`}>
-                                                        {idx + 1}. {result.name}
-                                                    </span>
-                                                    {result.isCorrect ? 
-                                                        <i className="ph-fill ph-check-circle text-xl text-green-500"></i> : 
-                                                        <i className="ph-fill ph-x-circle text-xl text-red-500"></i>
-                                                    }
-                                                </div>
-                                                
-                                                {!result.isCorrect && (
-                                                    <div className="text-sm text-red-600 mb-2 font-medium bg-white px-2 py-1 rounded border border-red-100 inline-block">
-                                                        Của bạn: <span className="line-through opacity-70">{getLabelName(result.userAnswerId) || 'Bỏ trống'}</span>
-                                                    </div>
-                                                )}
-                                                
-                                                <div className="text-slate-600 text-sm mt-1 flex items-start">
-                                                    <i className="ph-fill ph-lightbulb mt-0.5 mr-1.5 text-yellow-500"></i>
-                                                    {result.desc}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="p-4 border-t border-slate-200 bg-white space-y-2">
-                                        <button 
-                                            onClick={() => startGame(selectedSystem, selectedMode)}
-                                            className="w-full py-3 bg-medical-100 hover:bg-medical-200 text-medical-800 rounded-xl font-bold transition-all"
-                                        >
-                                            <i className="ph-bold ph-arrows-counter-clockwise mr-2"></i> Làm lại
-                                        </button>
-                                        <button 
-                                            onClick={resetGame}
-                                            className="w-full py-3 bg-white border-2 border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-bold transition-all"
-                                        >
-                                            Về Menu chính
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </main>
+              <button 
+                key={idx} 
+                onClick={() => handleSelect(idx)}
+                disabled={isAnswered}
+                className={btnClass}
+              >
+                <div className="flex items-center justify-between">
+                  <span>{String.fromCharCode(65 + idx)}. {opt}</span>
+                  {isAnswered && idx === currentQ.answer && <CheckCircle className="text-green-500" size={20} />}
+                  {isAnswered && idx === selectedOption && idx !== currentQ.answer && <XCircle className="text-red-500" size={20} />}
                 </div>
+              </button>
             );
-        };
+          })}
+        </div>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+        {isAnswered && (
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-6 animate-fade-in">
+            <p className="font-bold text-blue-800 mb-1">Giải thích:</p>
+            <p className="text-gray-700">{currentQ.explanation}</p>
+          </div>
+        )}
+
+        <div className="flex justify-end mt-auto">
+          <button
+            onClick={handleNext}
+            disabled={!isAnswered}
+            className={`px-6 py-3 rounded-lg flex items-center gap-2 font-bold transition-colors ${
+              isAnswered ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            {currentIndex < questions.length - 1 ? 'Câu tiếp theo' : 'Hoàn thành'} <ChevronRight size={20} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- COMPONENT: FLASHCARD ÔN TẬP ---
+const Flashcard = ({ title, front, back }) => {
+  const [flipped, setFlipped] = useState(false);
+  return (
+    <div 
+      className="h-48 w-full perspective-1000 cursor-pointer"
+      onClick={() => setFlipped(!flipped)}
+    >
+      <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${flipped ? 'rotate-y-180' : ''}`}>
+        {/* Mặt trước */}
+        <div className="absolute w-full h-full backface-hidden bg-white border-2 border-blue-100 rounded-xl shadow-sm p-4 flex flex-col items-center justify-center text-center">
+          <span className="text-sm font-bold text-blue-500 uppercase tracking-wider mb-2">{title}</span>
+          <h3 className="text-xl font-bold text-gray-800">{front}</h3>
+          <p className="text-xs text-gray-400 mt-4">Chạm để lật</p>
+        </div>
+        {/* Mặt sau */}
+        <div className="absolute w-full h-full backface-hidden bg-blue-600 text-white rounded-xl shadow-lg p-4 flex items-center justify-center text-center rotate-y-180">
+          <p className="text-lg font-medium">{back}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CrashCourseSection = () => {
+  const cards = [
+    { title: "Hệ Xương", front: "Số lượng xương người trưởng thành?", back: "206 xương" },
+    { title: "Hệ Cơ", front: "Cơ nào không theo ý muốn?", back: "Cơ trơn (ruột, mạch máu) & Cơ tim" },
+    { title: "Tuần Hoàn", front: "Tâm thất trái bơm máu đi đâu?", back: "Vào Động mạch chủ (Tuần hoàn hệ thống)" },
+    { title: "Thần Kinh", front: "Thần kinh ngoại biên gồm gì?", back: "12 đôi dây TK sọ & 31 đôi dây TK tủy" },
+    { title: "Hô Hấp", front: "Đơn vị chức năng của phổi?", back: "Phế nang (Nơi trao đổi khí)" },
+    { title: "Tiêu Hóa", front: "Các tuyến tiêu hóa phụ?", back: "Gan, Túi mật, Tụy" },
+    { title: "Tiết Niệu", front: "Chức năng chính của hệ tiết niệu?", back: "Tạo nước tiểu, điều hòa nước, điện giải & huyết áp" },
+    { title: "Sinh Dục", front: "Cơ quan sinh sản chính?", back: "Nam: Tinh hoàn | Nữ: Buồng trứng" },
+  ];
+
+  return (
+    <div className="h-full overflow-y-auto pb-10">
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-6 mb-8 text-white shadow-lg text-center">
+        <h2 className="text-2xl font-bold mb-2">⚡ Ôn Thi Cấp Tốc</h2>
+        <p className="opacity-90">Lật các thẻ ghi nhớ dưới đây để ôn lại các từ khóa quan trọng nhất trước khi thi.</p>
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-2">
+        {cards.map((c, i) => (
+          <Flashcard key={i} title={c.title} front={c.front} back={c.back} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// --- COMPONENT: ANKI ANATOMY ---
+const AnkiSection = () => {
+  const [imageSrc, setImageSrc] = useState(null);
+  const [boxes, setBoxes] = useState([]);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [startPoint, setStartPoint] = useState(null);
+  const [currentBox, setCurrentBox] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [tempBox, setTempBox] = useState(null);
+  const [labelInput, setLabelInput] = useState("");
+  const containerRef = useRef(null);
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => setImageSrc(event.target.result);
+      reader.readAsDataURL(file);
+      setBoxes([]); // Reset khi up ảnh mới
+    }
+  };
+
+  const getCoordinates = (e) => {
+    const rect = containerRef.current.getBoundingClientRect();
+    let clientX, clientY;
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    // Tính phần trăm để responsive
+    const x = ((clientX - rect.left) / rect.width) * 100;
+    const y = ((clientY - rect.top) / rect.height) * 100;
+    return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
+  };
+
+  const startDrawing = (e) => {
+    if (showModal) return;
+    // Bỏ qua nếu click vào nút xóa
+    if(e.target.closest('.delete-btn')) return;
+    e.preventDefault();
+    const coords = getCoordinates(e);
+    setIsDrawing(true);
+    setStartPoint(coords);
+    setCurrentBox({ x: coords.x, y: coords.y, w: 0, h: 0 });
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    e.preventDefault();
+    const coords = getCoordinates(e);
+    const w = coords.x - startPoint.x;
+    const h = coords.y - startPoint.y;
+    
+    setCurrentBox({
+      x: w < 0 ? coords.x : startPoint.x,
+      y: h < 0 ? coords.y : startPoint.y,
+      w: Math.abs(w),
+      h: Math.abs(h)
+    });
+  };
+
+  const stopDrawing = () => {
+    if (!isDrawing) return;
+    setIsDrawing(false);
+    
+    // Chỉ lưu nếu vùng vẽ đủ lớn
+    if (currentBox && currentBox.w > 2 && currentBox.h > 2) {
+      setTempBox(currentBox);
+      setShowModal(true);
+      setLabelInput("");
+    }
+    setCurrentBox(null);
+  };
+
+  const saveLabel = () => {
+    if (labelInput.trim() !== "") {
+      setBoxes([...boxes, { ...tempBox, id: Date.now(), label: labelInput }]);
+    }
+    setShowModal(false);
+    setTempBox(null);
+  };
+
+  const deleteBox = (id) => {
+    setBoxes(boxes.filter(b => b.id !== id));
+  };
+
+  return (
+    <div className="h-full flex flex-col">
+      <div className="bg-white p-4 rounded-xl shadow mb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold flex items-center gap-2"><ImageIcon className="text-blue-500"/> Anki Anatomy</h2>
+          <p className="text-sm text-gray-500">Tải ảnh lên, khoanh vùng cấu trúc để tạo Flashcard tự học.</p>
+        </div>
+        <div>
+          <input type="file" id="imageUpload" accept="image/*" className="hidden" onChange={handleImageUpload} />
+          <label htmlFor="imageUpload" className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 font-medium">
+            <Upload size={18} /> Tải ảnh giải phẫu
+          </label>
+        </div>
+      </div>
+
+      <div className="flex-1 bg-gray-100 rounded-xl overflow-hidden relative shadow-inner border-2 border-dashed border-gray-300 flex items-center justify-center">
+        {!imageSrc ? (
+          <div className="text-center text-gray-400 p-6">
+            <ImageIcon size={64} className="mx-auto mb-4 opacity-50" />
+            <p>Chưa có hình ảnh. Vui lòng tải ảnh lên để bắt đầu.</p>
+          </div>
+        ) : (
+          <div 
+            ref={containerRef}
+            className="relative w-full max-w-3xl select-none"
+            onMouseDown={startDrawing}
+            onMouseMove={draw}
+            onMouseUp={stopDrawing}
+            onMouseLeave={stopDrawing}
+            onTouchStart={startDrawing}
+            onTouchMove={draw}
+            onTouchEnd={stopDrawing}
+          >
+            <img src={imageSrc} alt="Anatomy" className="w-full h-auto block pointer-events-none" />
+            
+            {/* Các hộp đã vẽ */}
+            {boxes.map(box => (
+              <div 
+                key={box.id}
+                className="absolute border-2 border-green-500 bg-green-500 bg-opacity-20 group"
+                style={{ left: `${box.x}%`, top: `${box.y}%`, width: `${box.w}%`, height: `${box.h}%` }}
+              >
+                <div className="absolute -top-7 left-0 bg-green-600 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                  {box.label}
+                </div>
+                <button 
+                  onClick={() => deleteBox(box.id)}
+                  className="delete-btn absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+
+            {/* Hộp đang vẽ */}
+            {isDrawing && currentBox && (
+              <div 
+                className="absolute border-2 border-blue-500 border-dashed bg-blue-500 bg-opacity-10"
+                style={{ left: `${currentBox.x}%`, top: `${currentBox.y}%`, width: `${currentBox.w}%`, height: `${currentBox.h}%` }}
+              />
+            )}
+          </div>
+        )}
+
+        {/* Modal nhập tên */}
+        {showModal && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-xl shadow-2xl w-80">
+              <h3 className="text-lg font-bold mb-4">Tên cấu trúc giải phẫu:</h3>
+              <input 
+                type="text" 
+                autoFocus
+                value={labelInput}
+                onChange={e => setLabelInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && saveLabel()}
+                placeholder="VD: Tâm thất trái..."
+                className="w-full border-2 border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:border-blue-500"
+              />
+              <div className="flex justify-end gap-2">
+                <button onClick={() => setShowModal(false)} className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">Hủy</button>
+                <button onClick={saveLabel} className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">Lưu</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// --- MAIN APP COMPONENT ---
+export default function App() {
+  const [activeTab, setActiveTab] = useState('theory');
+
+  const tabs = [
+    { id: 'theory', name: 'Lý thuyết', icon: <BookOpen size={20} /> },
+    { id: 'quiz', name: 'Trắc nghiệm', icon: <CheckSquare size={20} /> },
+    { id: 'crash', name: 'Ôn thi cấp tốc', icon: <Zap size={20} /> },
+    { id: 'anki', name: 'Anki Anatomy', icon: <ImageIcon size={20} /> },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
+      {/* Cấu hình CSS cho hiệu ứng lật 3D */}
+      <style>{`
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
+
+      {/* Header & Navigation */}
+      <header className="bg-white shadow-sm z-10 sticky top-0">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between py-4">
+            <h1 className="text-2xl font-extrabold text-blue-700 flex items-center gap-2 mb-4 md:mb-0">
+              <Plus className="bg-blue-600 text-white rounded-full p-1" size={28} />
+              MediStudy Anatomy
+            </h1>
+            
+            <nav className="flex overflow-x-auto pb-2 md:pb-0 hide-scrollbar gap-2">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-colors font-medium text-sm ${
+                    activeTab === tab.id 
+                      ? 'bg-blue-600 text-white shadow-md' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {tab.icon} {tab.name}
+                </button>
+              ))}
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-6 overflow-hidden">
+        {activeTab === 'theory' && <TheorySection />}
+        {activeTab === 'quiz' && <QuizSection />}
+        {activeTab === 'crash' && <CrashCourseSection />}
+        {activeTab === 'anki' && <AnkiSection />}
+      </main>
+    </div>
+  );
+}
