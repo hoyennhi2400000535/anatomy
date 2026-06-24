@@ -1,742 +1,743 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { BookOpen, CheckSquare, Zap, Image as ImageIcon, ChevronRight, CheckCircle, XCircle, RefreshCw, Upload, Plus, X } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anatomy Match Game - Text Terminal</title>
+    
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-// --- DATA: LÝ THUYẾT ---
-const theoryData = [
-  {
-    id: 1,
-    name: "Hệ xương (Skeletal System)",
-    content: (
-      <div className="space-y-4">
-        <p><strong>Gồm khoảng:</strong> 206 xương ở người trưởng thành.</p>
-        <div><strong>Chức năng:</strong>
-          <ul className="list-disc pl-5 mt-1 space-y-1">
-            <li>Nâng đỡ cơ thể.</li>
-            <li>Bảo vệ các cơ quan (sọ bảo vệ não, lồng ngực bảo vệ tim phổi).</li>
-            <li>Nơi bám của cơ giúp vận động.</li>
-            <li>Dự trữ khoáng chất (Ca²⁺, P).</li>
-            <li>Tạo máu tại tủy xương đỏ.</li>
-          </ul>
-        </div>
-        <div><strong>Phân chia:</strong>
-          <ul className="list-disc pl-5 mt-1 space-y-1">
-            <li>Xương đầu mặt.</li>
-            <li>Xương thân mình (cột sống, xương sườn, xương ức).</li>
-            <li>Xương chi trên.</li>
-            <li>Xương chi dưới.</li>
-          </ul>
-        </div>
-      </div>
-    )
-  },
-  {
-    id: 2,
-    name: "Hệ cơ (Muscular System)",
-    content: (
-      <div className="space-y-4">
-        <p><strong>Số lượng:</strong> Có khoảng 600 cơ vân.</p>
-        <div><strong>Chức năng:</strong>
-          <ul className="list-disc pl-5 mt-1 space-y-1">
-            <li>Vận động cơ thể.</li>
-            <li>Duy trì tư thế.</li>
-            <li>Sinh nhiệt.</li>
-          </ul>
-        </div>
-        <div><strong>3 loại cơ:</strong>
-          <ul className="list-decimal pl-5 mt-1 space-y-1">
-            <li><strong>Cơ vân (cơ xương):</strong> vận động theo ý muốn.</li>
-            <li><strong>Cơ trơn:</strong> thành ruột, mạch máu, bàng quang (không theo ý muốn).</li>
-            <li><strong>Cơ tim:</strong> chỉ có ở tim.</li>
-          </ul>
-        </div>
-        <p className="italic text-gray-600 bg-gray-50 p-3 rounded border-l-4 border-blue-500">Cơ hoạt động nhờ sự co rút của các sợi cơ.</p>
-      </div>
-    )
-  },
-  {
-    id: 3,
-    name: "Hệ mạch máu - tuần hoàn",
-    content: (
-      <div className="space-y-4">
-        <div><strong>Thành phần:</strong>
-          <ul className="list-disc pl-5 mt-1 space-y-1">
-            <li>Tim.</li><li>Động mạch.</li><li>Tĩnh mạch.</li><li>Mao mạch.</li>
-          </ul>
-        </div>
-        <div><strong>Chức năng:</strong>
-          <ul className="list-disc pl-5 mt-1 space-y-1">
-            <li>Vận chuyển oxy, chất dinh dưỡng.</li>
-            <li>Đưa chất thải đến cơ quan bài tiết.</li>
-            <li>Điều hòa thân nhiệt.</li>
-          </ul>
-        </div>
-        <div><strong>Đường đi máu:</strong>
-          <ol className="list-decimal pl-5 mt-1 space-y-2">
-            <li><strong>Tuần hoàn phổi:</strong> Thất phải → động mạch phổi → phổi → tĩnh mạch phổi → nhĩ trái.</li>
-            <li><strong>Tuần hoàn hệ thống:</strong> Thất trái → động mạch chủ → cơ quan → tĩnh mạch chủ → nhĩ phải.</li>
-          </ol>
-        </div>
-      </div>
-    )
-  },
-  {
-    id: 4,
-    name: "Hệ thần kinh (Nervous System)",
-    content: (
-      <div className="space-y-4">
-        <p><strong>Chức năng:</strong> Điều khiển và phối hợp hoạt động của cơ thể.</p>
-        <div><strong>Phân chia:</strong>
-          <div className="mt-2 space-y-3">
-            <div className="bg-blue-50 p-3 rounded">
-              <strong>Hệ thần kinh trung ương:</strong>
-              <ul className="list-disc pl-5 mt-1"><li>Não.</li><li>Tủy sống.</li></ul>
-            </div>
-            <div className="bg-green-50 p-3 rounded">
-              <strong>Hệ thần kinh ngoại biên:</strong>
-              <ul className="list-disc pl-5 mt-1"><li>12 đôi dây thần kinh sọ.</li><li>31 đôi dây thần kinh tủy.</li></ul>
-            </div>
-            <div className="bg-purple-50 p-3 rounded">
-              <strong>Hệ thần kinh tự chủ:</strong>
-              <ul className="list-disc pl-5 mt-1">
-                <li><strong>Giao cảm:</strong> Ví dụ tăng nhịp tim, giãn đồng tử.</li>
-                <li><strong>Phó giao cảm:</strong> Ví dụ giảm nhịp tim, tăng tiêu hóa.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  },
-  {
-    id: 5,
-    name: "Hệ hô hấp (Respiratory System)",
-    content: (
-      <div className="space-y-4">
-        <div><strong>Cơ quan:</strong>
-          <ul className="list-disc pl-5 mt-1">
-            <li>Mũi → Hầu → Thanh quản → Khí quản → Phế quản → Phổi.</li>
-          </ul>
-        </div>
-        <p><strong>Chức năng:</strong> Trao đổi khí O₂ và CO₂.</p>
-        <p className="font-semibold text-blue-600">Đơn vị chức năng: Phế nang.</p>
-      </div>
-    )
-  },
-  {
-    id: 6,
-    name: "Hệ tiêu hóa (Digestive System)",
-    content: (
-      <div className="space-y-4">
-        <div><strong>Đường tiêu hóa:</strong>
-          <p className="bg-gray-100 p-2 rounded mt-1">Miệng → Hầu → Thực quản → Dạ dày → Ruột non → Ruột già → Trực tràng → Hậu môn.</p>
-        </div>
-        <div><strong>Tuyến tiêu hóa phụ:</strong>
-          <ul className="list-disc pl-5 mt-1"><li>Gan.</li><li>Túi mật.</li><li>Tụy.</li></ul>
-        </div>
-        <div><strong>Chức năng:</strong>
-          <ul className="list-disc pl-5 mt-1">
-            <li>Tiêu hóa thức ăn.</li><li>Hấp thu chất dinh dưỡng.</li><li>Thải phân.</li>
-          </ul>
-        </div>
-      </div>
-    )
-  },
-  {
-    id: 7,
-    name: "Hệ tiết niệu (Urinary System)",
-    content: (
-      <div className="space-y-4">
-        <div><strong>Cơ quan:</strong>
-          <ul className="list-disc pl-5 mt-1">
-            <li>2 thận.</li><li>2 niệu quản.</li><li>Bàng quang.</li><li>Niệu đạo.</li>
-          </ul>
-        </div>
-        <div><strong>Chức năng:</strong>
-          <ul className="list-disc pl-5 mt-1">
-            <li>Tạo nước tiểu.</li><li>Điều hòa nước và điện giải.</li><li>Điều hòa huyết áp.</li>
-          </ul>
-        </div>
-      </div>
-    )
-  },
-  {
-    id: 8,
-    name: "Hệ sinh dục (Reproductive System)",
-    content: (
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="border p-3 rounded bg-blue-50">
-            <strong>Nam:</strong>
-            <ul className="list-disc pl-5 mt-1"><li>Tinh hoàn.</li><li>Mào tinh.</li><li>Ống dẫn tinh.</li><li>Dương vật.</li></ul>
-          </div>
-          <div className="border p-3 rounded bg-pink-50">
-            <strong>Nữ:</strong>
-            <ul className="list-disc pl-5 mt-1"><li>Buồng trứng.</li><li>Vòi tử cung.</li><li>Tử cung.</li><li>Âm đạo.</li></ul>
-          </div>
-        </div>
-        <div><strong>Chức năng:</strong>
-          <ul className="list-disc pl-5 mt-1"><li>Sinh sản.</li><li>Tiết hormon sinh dục.</li></ul>
-        </div>
-      </div>
-    )
-  },
-  {
-    id: 9,
-    name: "Hệ nội tiết (Endocrine System)",
-    content: (
-      <div className="space-y-4">
-        <div><strong>Các tuyến chính:</strong>
-          <ul className="list-disc pl-5 mt-1 grid grid-cols-2">
-            <li>Tuyến yên.</li><li>Tuyến giáp.</li><li>Cận giáp.</li><li>Thượng thận.</li><li>Tuyến tụy nội tiết.</li><li>Tuyến sinh dục.</li>
-          </ul>
-        </div>
-        <p><strong>Chức năng:</strong> Tiết hormon điều hòa hoạt động cơ thể.</p>
-      </div>
-    )
-  },
-  {
-    id: 10,
-    name: "Hệ bạch huyết - miễn dịch",
-    content: (
-      <div className="space-y-4">
-        <div><strong>Cơ quan:</strong>
-          <ul className="list-disc pl-5 mt-1">
-            <li>Hạch bạch huyết.</li><li>Lách.</li><li>Tuyến ức.</li><li>Amidan.</li>
-          </ul>
-        </div>
-        <div><strong>Chức năng:</strong>
-          <ul className="list-disc pl-5 mt-1">
-            <li>Bảo vệ cơ thể chống nhiễm khuẩn.</li><li>Dẫn lưu dịch mô trở về tuần hoàn.</li>
-          </ul>
-        </div>
-      </div>
-    )
-  }
-];
-
-// --- DATA: TRẮC NGHIỆM ---
-const quizDatabase = [
-  {
-    question: "Hệ xương của người trưởng thành gồm khoảng bao nhiêu xương?",
-    options: ["106", "206", "306", "600"],
-    answer: 1,
-    explanation: "Người trưởng thành có khoảng 206 xương. Trẻ sơ sinh có nhiều xương hơn (khoảng 300) nhưng chúng hợp nhất lại khi lớn lên."
-  },
-  {
-    question: "Loại cơ nào KHÔNG hoạt động theo ý muốn của chúng ta?",
-    options: ["Cơ vân", "Cơ xương", "Cơ trơn", "Cơ bám da mặt"],
-    answer: 2,
-    explanation: "Cơ trơn (có ở thành mạch máu, ruột, bàng quang...) hoạt động tự động không theo ý muốn. Cơ vân/cơ xương vận động theo ý muốn."
-  },
-  {
-    question: "Đường đi của máu trong tuần hoàn phổi (tuần hoàn nhỏ) bắt đầu từ đâu?",
-    options: ["Tâm thất trái", "Tâm nhĩ phải", "Tâm thất phải", "Tâm nhĩ trái"],
-    answer: 2,
-    explanation: "Máu nghèo O2 từ Tâm thất phải → Động mạch phổi → Phổi (trao đổi khí) → Tĩnh mạch phổi → Tâm nhĩ trái."
-  },
-  {
-    question: "Hệ thần kinh ngoại biên bao gồm những thành phần nào?",
-    options: ["Não và tủy sống", "12 đôi dây TK sọ và 31 đôi dây TK tủy", "Hệ giao cảm và phó giao cảm", "Chỉ gồm các dây thần kinh sọ"],
-    answer: 1,
-    explanation: "Hệ TK ngoại biên gồm 12 đôi dây thần kinh sọ (xuất phát từ não) và 31 đôi dây thần kinh tủy (xuất phát từ tủy sống)."
-  },
-  {
-    question: "Đơn vị chức năng của hệ hô hấp, nơi diễn ra sự trao đổi khí là gì?",
-    options: ["Khí quản", "Phế quản", "Thanh quản", "Phế nang"],
-    answer: 3,
-    explanation: "Phế nang là những túi khí nhỏ li ti ở phổi, có mạng lưới mao mạch bao quanh dày đặc, là nơi trực tiếp trao đổi O2 và CO2."
-  },
-  {
-    question: "Cơ quan nào sau đây KHÔNG thuộc ống tiêu hóa?",
-    options: ["Thực quản", "Dạ dày", "Tụy", "Ruột non"],
-    answer: 2,
-    explanation: "Tụy (cùng với Gan, Túi mật) là tuyến tiêu hóa phụ, tiết dịch đổ vào ống tiêu hóa chứ thức ăn không đi trực tiếp qua Tụy."
-  },
-  {
-    question: "Chức năng của hệ giao cảm là gì?",
-    options: ["Tăng nhịp tim, giãn đồng tử", "Giảm nhịp tim, tăng tiêu hóa", "Tiết hormon sinh dục", "Tạo máu"],
-    answer: 0,
-    explanation: "Hệ giao cảm chuẩn bị cơ thể cho trạng thái 'chiến đấu hoặc bỏ chạy', làm tăng nhịp tim, giãn đồng tử, tăng nhịp thở."
-  }
-];
-
-// --- COMPONENT: LÝ THUYẾT ---
-const TheorySection = () => {
-  const [activeId, setActiveId] = useState(1);
-
-  return (
-    <div className="flex flex-col md:flex-row h-full gap-4">
-      <div className="w-full md:w-1/3 bg-white rounded-xl shadow overflow-hidden flex flex-col h-[40vh] md:h-auto">
-        <div className="bg-blue-600 text-white p-4 font-bold text-lg">Danh mục hệ cơ quan</div>
-        <div className="overflow-y-auto flex-1 p-2 space-y-1">
-          {theoryData.map(item => (
-            <button
-              key={item.id}
-              onClick={() => setActiveId(item.id)}
-              className={`w-full text-left px-4 py-3 rounded-lg transition-colors flex items-center justify-between ${
-                activeId === item.id ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-gray-100'
-              }`}
-            >
-              <span className="truncate pr-2">{item.name}</span>
-              {activeId === item.id && <ChevronRight size={18} />}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="w-full md:w-2/3 bg-white rounded-xl shadow flex flex-col h-[50vh] md:h-auto">
-        {theoryData.map(item => (
-          item.id === activeId && (
-            <div key={item.id} className="p-6 overflow-y-auto h-full flex-1">
-              <h2 className="text-2xl font-bold text-gray-800 border-b pb-4 mb-4">{item.name}</h2>
-              <div className="text-gray-700 text-lg leading-relaxed">
-                {item.content}
-              </div>
-            </div>
-          )
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// --- COMPONENT: TRẮC NGHIỆM ---
-const QuizSection = () => {
-  const [questions, setQuestions] = useState(quizDatabase);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [wrongQuestions, setWrongQuestions] = useState([]);
-  const [mode, setMode] = useState('all'); // 'all' or 'wrong'
-  const [quizFinished, setQuizFinished] = useState(false);
-  const [score, setScore] = useState(0);
-
-  const currentQ = questions[currentIndex];
-
-  const handleSelect = (index) => {
-    if (isAnswered) return;
-    setSelectedOption(index);
-    setIsAnswered(true);
-
-    if (index === currentQ.answer) {
-      if (mode === 'all') setScore(s => s + 1);
-    } else {
-      // Lưu câu sai
-      if (!wrongQuestions.find(q => q.question === currentQ.question)) {
-        setWrongQuestions([...wrongQuestions, currentQ]);
-      }
-    }
-  };
-
-  const handleNext = () => {
-    if (currentIndex < questions.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-      setSelectedOption(null);
-      setIsAnswered(false);
-    } else {
-      setQuizFinished(true);
-    }
-  };
-
-  const startWrongMode = () => {
-    if (wrongQuestions.length === 0) return;
-    setQuestions(wrongQuestions);
-    setMode('wrong');
-    setCurrentIndex(0);
-    setSelectedOption(null);
-    setIsAnswered(false);
-    setQuizFinished(false);
-    setScore(0);
-  };
-
-  const restartQuiz = () => {
-    setQuestions(quizDatabase);
-    setMode('all');
-    setCurrentIndex(0);
-    setSelectedOption(null);
-    setIsAnswered(false);
-    setQuizFinished(false);
-    setScore(0);
-  };
-
-  if (quizFinished) {
-    return (
-      <div className="bg-white rounded-xl shadow p-8 text-center max-w-2xl mx-auto mt-10">
-        <h2 className="text-3xl font-bold mb-4">Hoàn thành bài test!</h2>
-        {mode === 'all' && (
-          <p className="text-2xl mb-6">Điểm của bạn: <span className="font-bold text-blue-600">{score}/{questions.length}</span></p>
-        )}
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button onClick={restartQuiz} className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2">
-            <RefreshCw size={20} /> Làm lại từ đầu
-          </button>
-          {wrongQuestions.length > 0 && (
-            <button onClick={startWrongMode} className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 flex items-center justify-center gap-2">
-              <XCircle size={20} /> Ôn lại {wrongQuestions.length} câu sai
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-3xl mx-auto h-full flex flex-col">
-      <div className="flex justify-between items-center mb-4 px-2">
-        <span className="font-semibold text-gray-600">
-          {mode === 'wrong' ? '🔴 Đang ôn câu sai' : '🟢 Bài thi tổng hợp'}
-        </span>
-        <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-bold">
-          Câu {currentIndex + 1} / {questions.length}
-        </span>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 flex-1 flex flex-col">
-        <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">{currentQ.question}</h3>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Space Grotesk', 'monospace'],
+                    },
+                    colors: {
+                        cyber: {
+                            bg: '#050a14',
+                            card: '#0a101d',
+                            border: '#1e293b',
+                            neonTeal: '#06b6d4',
+                            neonGreen: '#10b981',
+                            neonRed: '#f43f5e',
+                            neonYellow: '#eab308'
+                        }
+                    },
+                    animation: {
+                        'shake': 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both',
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(4px, 0, 0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050a14;
+            color: #f1f5f9;
+            overflow-x: hidden;
+            overscroll-behavior: none;
+        }
+        /* Grid background effect for terminal look */
+        .medical-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+        }
+        .glow-teal { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
+        .glow-red { box-shadow: 0 0 15px rgba(244, 63, 94, 0.5); }
+        .glow-green { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
         
-        <div className="space-y-3 mb-6 flex-1">
-          {currentQ.options.map((opt, idx) => {
-            let btnClass = "w-full text-left p-4 rounded-xl border-2 transition-all ";
-            if (!isAnswered) {
-              btnClass += "border-gray-200 hover:border-blue-400 hover:bg-blue-50";
-            } else {
-              if (idx === currentQ.answer) {
-                btnClass += "border-green-500 bg-green-50 text-green-800 font-semibold";
-              } else if (idx === selectedOption) {
-                btnClass += "border-red-500 bg-red-50 text-red-800";
-              } else {
-                btnClass += "border-gray-200 opacity-50";
-              }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+        /* Hide scrollbar for neat terminal look but keep functionality */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+        const playSound = (type) => {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+                    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    osc.start(); osc.stop(ctx.currentTime + 0.45);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start(); osc.stop(ctx.currentTime + 0.35);
+                } else if (type === 'select') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+                    osc.start(); osc.stop(ctx.currentTime + 0.1);
+                } else if (type === 'victory') {
+                    const notes = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const o = ctx.createOscillator(); const g = ctx.createGain();
+                        o.connect(g); g.connect(ctx.destination);
+                        o.type = 'sine';
+                        o.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.08);
+                        g.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.08);
+                        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.08 + 0.2);
+                        o.start(ctx.currentTime + idx * 0.08); o.stop(ctx.currentTime + idx * 0.08 + 0.25);
+                    });
+                }
+            } catch (e) { console.log("Audio block:", e); }
+        };
+
+        // Dữ liệu y khoa học thuật không thay đổi, dùng cho text-matching
+        const DATABASE = {
+            skeletal: {
+                name: "Hệ Xương (Skeletal System)", icon: "ph-bone",
+                desc: "Hệ thống khung nâng đỡ cơ thể, bảo vệ các nội quan và làm điểm tựa chịu lực cho cơ bắp di động.",
+                items: [
+                    { id: 'skull', name: 'Xương sọ (Cranium)', desc: 'Cấu trúc xương vòm bảo vệ đại não và cấu tạo khung xương mặt diện.' },
+                    { id: 'mandible', name: 'Xương hàm dưới (Mandible)', desc: 'Khung xương di động duy nhất ở sọ giúp nhai và phát âm.' },
+                    { id: 'cervical_vertebrae', name: 'Đốt sống cổ (Cervical)', desc: 'Gồm 7 đốt từ C1-C7 chịu trách nhiệm xoay, gập và nâng đầu.' },
+                    { id: 'clavicle', name: 'Xương đòn (Clavicle)', desc: 'Xương hình chữ S nối chi trên với xương ức ngực, dễ gãy khi ngã chống tay.' },
+                    { id: 'scapula', name: 'Xương bả vai (Scapula)', desc: 'Tấm xương dẹt hình tam giác phía sau vai, hỗ trợ linh hoạt khớp vai.' },
+                    { id: 'sternum', name: 'Xương ức (Sternum)', desc: 'Trục xương dẹt dọc trước ngực làm điểm nối các sụn sườn.' },
+                    { id: 'ribs', name: 'Xương sườn (Ribs)', desc: '12 đôi xương dẹt uốn cong tạo thành lồng ngực bảo vệ tim và phổi.' },
+                    { id: 'spine', name: 'Cột sống ngực (Thoracic)', desc: 'Trục đỡ trung tâm thân trên, bảo vệ dây tủy sống chạy bên trong.' },
+                    { id: 'lumbar_vertebrae', name: 'Cột sống thắt lưng', desc: '5 đốt to dày chịu lực nén lớn nhất của trọng lượng nửa trên thân thể.' },
+                    { id: 'sacrum', name: 'Xương cùng (Sacrum)', desc: 'Khối xương hợp nhất hình chêm gắn chặt vào xương chậu tạo bệ đỡ.' },
+                    { id: 'pelvis', name: 'Xương chậu (Pelvis)', desc: 'Cấu trúc vòng xương vững chắc kết nối thân trên với chi dưới.' },
+                    { id: 'humerus', name: 'Xương cánh tay (Humerus)', desc: 'Xương dài chi trên nối từ ổ chảo bả vai tới khớp khuỷu tay.' },
+                    { id: 'radius', name: 'Xương quay (Radius)', desc: 'Xương cẳng tay nằm cùng phía ngón tay cái, giúp xoay sấp ngửa bàn tay.' },
+                    { id: 'ulna', name: 'Xương trụ (Ulna)', desc: 'Xương cẳng tay phía ngón út, đầu trên tạo thành mỏm khuỷu bản lề.' },
+                    { id: 'carpals', name: 'Xương cổ tay (Carpals)', desc: 'Nhóm 8 xương khối nhỏ xếp 2 hàng tạo sự linh hoạt đa chiều ở cổ tay.' },
+                    { id: 'femur', name: 'Xương đùi (Femur)', desc: 'Xương dài, nặng và chịu lực bền bỉ khỏe nhất trong cơ thể người.' },
+                    { id: 'patella', name: 'Xương bánh chè (Patella)', desc: 'Xương vừng lớn nhất nằm trong gân cơ tứ đầu bảo vệ mặt trước khớp gối.' },
+                    { id: 'tibia', name: 'Xương chày (Tibia)', desc: 'Xương ống chân lớn chịu 90% trọng lượng cơ thể truyền từ đùi xuống.' },
+                    { id: 'fibula', name: 'Xương mác (Fibula)', desc: 'Xương thanh mảnh bên cạnh xương chày làm nơi bám của các cơ cẳng chân.' },
+                    { id: 'tarsals', name: 'Xương cổ chân (Tarsals)', desc: 'Nhóm 7 xương chịu tải, bao gồm cả xương gót lớn nhận lực khi bước đi.' }
+                ]
+            },
+            cardiovascular: {
+                name: "Hệ Tim Mạch (Cardiovascular)", icon: "ph-heartbeat",
+                desc: "Mạng lưới vận chuyển máu, oxy, CO2 và chất dinh dưỡng đi khắp cơ thể thông qua hệ thống động tĩnh mạch.",
+                items: [
+                    { id: 'right_atrium', name: 'Tâm nhĩ phải', desc: 'Buồng tim phía trên nhận toàn bộ máu nghèo oxy từ tĩnh mạch chủ đổ về.' },
+                    { id: 'right_ventricle', name: 'Tâm thất phải', desc: 'Buồng tim co bóp tống máu đen nghèo oxy lên động mạch phổi để trao đổi khí.' },
+                    { id: 'left_atrium', name: 'Tâm nhĩ trái', desc: 'Buồng nhận máu đỏ tươi giàu oxy tinh khiết từ tĩnh mạch phổi trở về tim.' },
+                    { id: 'left_ventricle', name: 'Tâm thất trái', desc: 'Buồng cơ dày và khỏe nhất, co bóp mạnh tống máu đi nuôi khắp toàn thân.' },
+                    { id: 'aorta', name: 'Động mạch chủ (Aorta)', desc: 'Động mạch lớn nhất xuất phát từ thất trái dẫn máu áp lực cao đi nuôi cơ thể.' },
+                    { id: 'superior_vc', name: 'Tĩnh mạch chủ trên', desc: 'Thu hồi máu đã trao đổi chất từ vùng đầu, cổ, chi trên về nhĩ phải.' },
+                    { id: 'inferior_vc', name: 'Tĩnh mạch chủ dưới', desc: 'Dẫn lượng lớn máu tĩnh mạch nửa thân dưới về lại buồng nhĩ phải.' },
+                    { id: 'pulmonary_artery', name: 'Động mạch phổi', desc: 'Động mạch duy nhất trong cơ thể chứa máu đỏ sẫm nghèo oxy đi từ tim ra.' },
+                    { id: 'pulmonary_veins', name: 'Tĩnh mạch phổi', desc: 'Hệ thống tĩnh mạch duy nhất mang máu đỏ tươi giàu oxy về tim.' },
+                    { id: 'coronary_arteries', name: 'Động mạch vành', desc: 'Mạng lưới mạch máu bao quanh làm nhiệm vụ nuôi dưỡng chính khối cơ tim.' },
+                    { id: 'carotid_artery', name: 'Động mạch cảnh', desc: 'Mạch máu đập rõ chạy dọc cổ cấp oxy trực tiếp lên mô não bộ.' },
+                    { id: 'jugular_vein', name: 'Tĩnh mạch cổ (Jugular)', desc: 'Đường dẫn thu hồi máu đã sử dụng từ hộp sọ trở lại tuần hoàn hệ thống.' },
+                    { id: 'subclavian_artery', name: 'Động mạch dưới đòn', desc: 'Cung cấp máu cho vùng vai cổ và toàn bộ cánh tay trái/phải.' },
+                    { id: 'brachial_artery', name: 'Động mạch cánh tay', desc: 'Nhánh mạch chính ở bắp tay, là vị trí thường dùng để quấn băng đo huyết áp.' },
+                    { id: 'renal_artery', name: 'Động mạch thận', desc: 'Đưa dòng máu áp lực cao vào các đơn vị cầu thận để thực hiện lọc chất thải.' },
+                    { id: 'iliac_artery', name: 'Động mạch chậu', desc: 'Phân nhánh cuối của động mạch chủ bụng chia đôi đi xuống vùng háng.' },
+                    { id: 'femoral_artery', name: 'Động mạch đùi', desc: 'Mạch nông lớn ở vùng đùi, tổn thương vùng này cực kỳ nguy hiểm do mất máu nhanh.' },
+                    { id: 'saphenous_vein', name: 'Tĩnh mạch hiển lớn', desc: 'Tĩnh mạch dài nhất cơ thể, chạy dọc nông từ mắt cá chân lên đến đùi.' },
+                    { id: 'capillaries', name: 'Hệ Mao mạch', desc: 'Mạng lưới vi mạch có màng siêu mỏng thực hiện trao đổi chất giữa máu và tế bào mô.' },
+                    { id: 'tricuspid_valve', name: 'Van ba lá (Tricuspid)', desc: 'Van một chiều ngăn dòng máu chảy ngược từ thất phải về lại nhĩ phải khi tim bóp.' }
+                ]
+            },
+            nervous: {
+                name: "Hệ Thần Kinh (Nervous)", icon: "ph-lightning",
+                desc: "Trung tâm chỉ huy phát tín hiệu điện sinh học siêu tốc điều phối mọi hoạt động tư duy, phản xạ cơ thể.",
+                items: [
+                    { id: 'cerebrum', name: 'Đại não (Cerebrum)', desc: 'Khối nhăn nheo lớn nhất, nơi xử lý tư duy cấp cao, ngôn ngữ, ký ức và ý thức.' },
+                    { id: 'cerebellum', name: 'Tiểu não (Cerebellum)', desc: 'Nằm phía sau gáy, điều hòa phối hợp các cử động tự chủ, thăng bằng và trương lực cơ.' },
+                    { id: 'brainstem', name: 'Thân não (Brainstem)', desc: 'Phần kết nối với tủy sống, kiểm soát các phản xạ sống còn vô thức như nhịp tim, thở.' },
+                    { id: 'spinal_cord', name: 'Tủy sống (Spinal Cord)', desc: 'Đường truyền thần kinh chính chạy dọc ống sống xương lưng nối não với cơ thể.' },
+                    { id: 'cervical_plexus', name: 'Đám rối thần kinh cổ', desc: 'Mạng dây thần kinh vận hành cơ vùng cổ và chi phối cơ hoành hô hấp.' },
+                    { id: 'brachial_plexus', name: 'Đám rối cánh tay', desc: 'Mạng thần kinh đi từ cổ xuống nách, chi phối toàn bộ vận động, cảm giác của tay.' },
+                    { id: 'radial_nerve', name: 'Dây thần kinh quay', desc: 'Dây thần kinh chi phối động tác duỗi cổ tay và các ngón tay.' },
+                    { id: 'ulnar_nerve', name: 'Dây thần kinh trụ', desc: 'Chạy sát lớp da ở mỏm khuỷu tay, khi va đập gây cảm giác tê buốt lan dọc tay.' },
+                    { id: 'median_nerve', name: 'Dây thần kinh giữa', desc: 'Chạy giữa ống cổ tay, bị chèn ép sẽ gây ra hội chứng ống cổ tay gây tê ngón trỏ, giữa.' },
+                    { id: 'lumbar_plexus', name: 'Đám rối thắt lưng', desc: 'Cung cấp các sợi thần kinh đến thành bụng và mặt trước đùi.' },
+                    { id: 'sacral_plexus', name: 'Đám rối cùng', desc: 'Mạng lưới thần kinh sâu trong khung chậu chi phối vùng hông và đùi sau.' },
+                    { id: 'sciatic_nerve', name: 'Dây thần kinh tọa', desc: 'Dây thần kinh đơn lẻ dày và dài nhất cơ thể đi từ mông xuống tận chân.' },
+                    { id: 'femoral_nerve', name: 'Dây thần kinh đùi', desc: 'Kích thích vận động nhóm cơ tứ đầu đùi giúp duỗi thẳng khớp gối.' },
+                    { id: 'tibial_nerve', name: 'Dây thần kinh chày', desc: 'Nhánh thần kinh chạy phía sau bắp chân xuống gan bàn chân.' },
+                    { id: 'fibular_nerve', name: 'Dây thần kinh mác', desc: 'Điều khiển nhóm cơ cẳng chân trước gập cổ chân hướng lên mu bàn chân.' },
+                    { id: 'vagus_nerve', name: 'Thần kinh phế vị (X)', desc: 'Dây đối giao cảm lang thang chi phối hoạt động tự chủ của tim, phổi, dạ dày.' },
+                    { id: 'optic_nerve', name: 'Thần kinh thị giác (II)', desc: 'Đường truyền tín hiệu hình ảnh trực tiếp từ võng mạc mắt về thùy chẩm não.' },
+                    { id: 'olfactory_nerve', name: 'Thần kinh khứu giác (I)', desc: 'Dẫn truyền xung điện nhận biết mùi hương từ niêm mạc mũi lên hành khứu não.' },
+                    { id: 'sympathetic_trunk', name: 'Chuỗi hạch giao cảm', desc: 'Hệ thống hạch dọc 2 bên cột sống chuẩn bị cho phản ứng "chiến đấu hay bỏ chạy".' },
+                    { id: 'ganglia', name: 'Hạch thần kinh ngoại biên', desc: 'Các trạm trung chuyển gom nhóm thân tế bào thần kinh nằm ngoài hệ thần kinh trung ương.' }
+                ]
+            },
+            respiratory: {
+                name: "Hệ Hô Hấp (Respiratory)", icon: "ph-wind",
+                desc: "Hệ thống lấy khí oxy từ khí quyển đưa vào máu và đào thải khí carbonic từ chu trình chuyển hóa ra ngoài.",
+                items: [
+                    { id: 'nasal_cavity', name: 'Khoang mũi', desc: 'Chứa hệ thống lông và niêm mạc ẩm giúp lọc bụi, làm ấm không khí trước khi vào phổi.' },
+                    { id: 'pharynx', name: 'Hầu họng', desc: 'Ngã tư giao nhau giữa đường dẫn khí hô hấp và đường tiêu hóa thức ăn.' },
+                    { id: 'larynx', name: 'Thanh quản', desc: 'Cơ quan phát âm chứa dây thanh âm và sụn nắp khí quản.' },
+                    { id: 'epiglottis', name: 'Nắp thanh quản', desc: 'Sụn hình chiếc lá đậy kín đường thở mỗi khi nuốt, tránh thức ăn lọt vào phổi.' },
+                    { id: 'trachea', name: 'Khí quản', desc: 'Ống dẫn khí chính được gia cố bởi các vòng sụn hình chữ C giúp lòng ống luôn mở.' },
+                    { id: 'bronchus_right', name: 'Phế quản chính phải', desc: 'Đường dẫn khí vào phổi phải, rộng và dốc thẳng đứng hơn nên dị vật dễ lọt vào.' },
+                    { id: 'bronchus_left', name: 'Phế quản chính trái', desc: 'Đường dẫn khí vào phổi trái, dài và nằm ngang hơn so với bên phải.' },
+                    { id: 'right_lung', name: 'Phổi phải', desc: 'Khối hô hấp lớn gồm 3 thùy (Trên, Giữa, Dưới), dung tích lớn hơn phổi trái.' },
+                    { id: 'left_lung', name: 'Phổi trái', desc: 'Khối hô hấp chỉ có 2 thùy do nhường chỗ cho vị trí nằm lệch trái của quả tim.' },
+                    { id: 'alveoli', name: 'Phế nang', desc: 'Hàng triệu túi khí li ti bao quanh bởi mao mạch, nơi trực tiếp diễn ra sự trao đổi khí O2 và CO2.' },
+                    { id: 'pleura', name: 'Màng phổi', desc: 'Lớp màng kép trơn trượt chứa dịch mỏng giúp phổi co giãn êm ái lồng ngực khi hít thở.' },
+                    { id: 'diaphragm', name: 'Cơ hoành', desc: 'Cơ vân phẳng ngăn ngực với ổ bụng, là cơ hô hấp chính tạo ra nhịp hít thở bình thường.' },
+                    { id: 'vocal_cords', name: 'Dây thanh âm', desc: 'Hai dải màng cơ rung động phát ra âm thanh khi dòng khí thở ra đi qua chúng.' },
+                    { id: 'bronchioles', name: 'Tiểu phế quản', desc: 'Nhánh phế quản nhỏ nhất không có sụn, có cơ trơn dễ co thắt mạnh khi lên cơn hen suyễn.' },
+                    { id: 'conchae', name: 'Xoăn mũi', desc: 'Các cấu trúc xương xoăn giúp tăng tối đa bề mặt tiếp xúc của không khí bên trong mũi.' },
+                    { id: 'sinuses', name: 'Các xoang mặt', desc: 'Các hốc xương rỗng vùng sọ mặt giúp cộng hưởng âm thanh và giảm nhẹ trọng lượng sọ.' },
+                    { id: 'intercostals', name: 'Cơ liên sườn', desc: 'Nhóm cơ nằm xen giữa các xương sườn, co rút làm nâng giãn lồng ngực khi hít sâu.' },
+                    { id: 'thyroid_cartilage', name: 'Sụn giáp', desc: 'Miếng sụn lớn bảo vệ mặt trước thanh quản, nhô ra tạo thành "quả táo Adam" ở nam giới.' },
+                    { id: 'accessory_muscles', name: 'Cơ hô hấp phụ', desc: 'Các cơ cổ và ngực chỉ tham gia hỗ trợ nâng lồng ngực khi người bệnh gắng sức thở mệt.' },
+                    { id: 'cardiac_notch', name: 'Khuyết tim', desc: 'Độ lõm trên bờ trước thùy phổi trái để nhường không gian chứa mỏm tim.' }
+                ]
+            },
+            digestive: {
+                name: "Hệ Tiêu Hóa (Digestive)", icon: "ph-egg",
+                desc: "Thực hiện bẻ gãy cấu trúc thức ăn thô thành các dưỡng chất siêu vi cơ thể hấp thụ được qua ruột.",
+                items: [
+                    { id: 'mouth', name: 'Khoang miệng', desc: 'Điểm khởi đầu ống tiêu hóa, nơi diễn ra tiêu hóa cơ học (nhai) và hóa học sơ khởi.' },
+                    { id: 'tongue', name: 'Lưỡi', desc: 'Cơ vân linh hoạt nhào trộn thức ăn, tạo viên nuốt và chứa gai cảm nhận vị giác.' },
+                    { id: 'salivary_glands', name: 'Tuyến nước bọt', desc: 'Tiết enzyme Amylase phân giải tinh bột chín thành đường đôi ngay từ miệng.' },
+                    { id: 'pharynx', name: 'Họng (Pharynx)', desc: 'Đoạn ống cơ đẩy viên thức ăn đã nhai xuống thực quản qua phản xạ nuốt tự động.' },
+                    { id: 'esophagus', name: 'Thực quản', desc: 'Ống cơ dài ~25cm chuyển thức ăn từ họng xuống dạ dày bằng các làn sóng nhu động.' },
+                    { id: 'stomach', name: 'Dạ dày', desc: 'Túi cơ hình chữ J co bóp mạnh, tiết acid HCl và enzyme Pepsin để cắt đứt protein.' },
+                    { id: 'duodenum', name: 'Tá tràng', desc: 'Đoạn đầu hình chữ C của ruột non, nơi dịch mật và dịch tụy đổ vào để tiêu hóa chính.' },
+                    { id: 'jejunum', name: 'Hỗng tràng', desc: 'Phần giữa ruột non dài và cuộn khúc, thực hiện hấp thu phần lớn chất dinh dưỡng vào máu.' },
+                    { id: 'ileum', name: 'Hồi tràng', desc: 'Đoạn cuối ruột non chuyên biệt cho việc hấp thu vitamin B12 và tái hấp thu muối mật.' },
+                    { id: 'cecum', name: 'Manh tràng', desc: 'Túi cùng khởi đầu của đại tràng kết nối ruột non, chứa van hồi-manh tràng ngăn trào ngược.' },
+                    { id: 'appendix', name: 'Ruột thừa', desc: 'Mô lympho hình giun đính ở manh tràng, đóng vai trò như kho lưu trú của vi khuẩn đường ruột có lợi.' },
+                    { id: 'ascending_colon', name: 'Đại tràng lên', desc: 'Đoạn ruột già chạy dọc mạn sườn phải, bắt đầu quá trình hút lại nước từ bã thức ăn.' },
+                    { id: 'transverse_colon', name: 'Đại tràng ngang', desc: 'Đoạn vắt ngang qua ổ bụng từ phải sang trái dưới dạ dày.' },
+                    { id: 'descending_colon', name: 'Đại tràng xuống', desc: 'Đoạn ruột già chạy dọc mạn sườn trái lưu trữ chất bã ngày càng đặc dần.' },
+                    { id: 'sigmoid_colon', name: 'Đại tràng xích-ma', desc: 'Đoạn uốn cong hình chữ S dẫn xuống trực tràng chứa và định hình phân.' },
+                    { id: 'rectum', name: 'Trực tràng', desc: 'Đoạn ống thẳng cuối cùng lưu trữ tạm thời khối phân và kích hoạt phản xạ mót rặn.' },
+                    { id: 'anus', name: 'Hậu môn', desc: 'Khe hở cuối có cơ thắt tự chủ điều khiển quá trình phóng thích phân ra môi trường.' },
+                    { id: 'liver', name: 'Gan', desc: 'Tuyến tiêu hóa lớn nhất thực hiện khử độc máu và sản xuất dịch mật phân giải mỡ.' },
+                    { id: 'gallbladder', name: 'Túi mật', desc: 'Túi nhỏ dưới gan nhận, lưu trữ và cô đặc dịch mật, sẽ bơm vào ruột khi ăn đồ béo.' },
+                    { id: 'pancreas', name: 'Tuyến tụy', desc: 'Tiết dịch tụy chứa dồi dào enzyme tiêu hóa thức ăn và tiết hormone Insulin cân bằng đường huyết.' }
+                ]
+            }
+        };
+
+        const GAME_MODES = {
+            STUDY: 'Học thuyết flashcard',
+            PRACTICE: 'Luyện tập khớp chữ',
+            CHALLENGE: 'Thử thách tốc độ'
+        };
+
+        const App = () => {
+            const [gameState, setGameState] = useState('menu'); // menu, playing, results, study
+            const [selectedSystem, setSelectedSystem] = useState('skeletal');
+            const [selectedMode, setSelectedMode] = useState(GAME_MODES.PRACTICE);
+            
+            // Gamification state
+            const [xp, setXp] = useState(() => Number(localStorage.getItem('text_anatomy_xp') || 0));
+            const [level, setLevel] = useState(() => Math.floor(xp / 100) + 1);
+            const [highScores, setHighScores] = useState(() => JSON.parse(localStorage.getItem('text_anatomy_highscores') || '{}'));
+            
+            // Playing state
+            const [shuffledDescs, setShuffledDescs] = useState([]);
+            const [shuffledTerms, setShuffledTerms] = useState([]);
+            const [matchedIds, setMatchedIds] = useState([]);
+            const [selection, setSelection] = useState(null); // { type: 'term'|'desc', id: string }
+            const [wrongPair, setWrongPair] = useState(null); // { term: id, desc: id }
+            
+            const [timeLeft, setTimeLeft] = useState(120);
+            const [timerActive, setTimerActive] = useState(false);
+            const [lives, setLives] = useState(3);
+            const [streak, setStreak] = useState(0);
+            const [scoreData, setScoreData] = useState(null);
+
+            // Ref cho âm thanh và scroll
+            const playingAreaRef = useRef(null);
+
+            const gainXP = (amount) => {
+                setXp(prev => {
+                    const newXp = prev + amount;
+                    localStorage.setItem('text_anatomy_xp', newXp);
+                    setLevel(Math.floor(newXp / 100) + 1);
+                    return newXp;
+                });
+            };
+
+            // Setup trò chơi
+            const startPlaying = (systemId, mode) => {
+                playSound('select');
+                setSelectedSystem(systemId);
+                setSelectedMode(mode);
+                setMatchedIds([]);
+                setSelection(null);
+                setWrongPair(null);
+                setStreak(0);
+                
+                const sysItems = DATABASE[systemId].items;
+
+                if (mode !== GAME_MODES.STUDY) {
+                    // Xáo trộn 2 cột độc lập
+                    setShuffledTerms([...sysItems].sort(() => Math.random() - 0.5));
+                    setShuffledDescs([...sysItems].sort(() => Math.random() - 0.5));
+                }
+
+                if (mode === GAME_MODES.CHALLENGE) {
+                    setLives(3);
+                    setTimeLeft(90);
+                    setTimerActive(true);
+                    setGameState('playing');
+                } else if (mode === GAME_MODES.STUDY) {
+                    setTimerActive(false);
+                    setGameState('study');
+                } else {
+                    setTimerActive(false);
+                    setGameState('playing');
+                }
+            };
+
+            // Timer cho chế độ Challenge
+            useEffect(() => {
+                let interval;
+                if (timerActive && timeLeft > 0 && gameState === 'playing') {
+                    interval = setInterval(() => setTimeLeft(p => p - 1), 1000);
+                } else if (timerActive && timeLeft <= 0 && gameState === 'playing') {
+                    setTimerActive(false);
+                    finishGame(false, false);
+                }
+                return () => clearInterval(interval);
+            }, [timerActive, timeLeft, gameState]);
+
+            // Kiểm tra điều kiện Thắng/Thua
+            useEffect(() => {
+                if (gameState !== 'playing') return;
+                const sysItems = DATABASE[selectedSystem]?.items;
+                if (!sysItems) return;
+
+                if (matchedIds.length === sysItems.length) {
+                    // Win
+                    setTimeout(() => finishGame(true, true), 600);
+                } else if (selectedMode === GAME_MODES.CHALLENGE && lives <= 0) {
+                    // Lose
+                    setTimeout(() => finishGame(false, false), 600);
+                }
+            }, [matchedIds.length, lives, gameState, selectedSystem, selectedMode]);
+
+            const handleItemClick = useCallback((type, id) => {
+                if (matchedIds.includes(id) || wrongPair) return;
+
+                if (!selection) {
+                    playSound('select');
+                    setSelection({ type, id });
+                    return;
+                }
+
+                if (selection.type === type) {
+                    // Chọn lại cùng một cột -> Đổi lựa chọn
+                    playSound('select');
+                    setSelection(selection.id === id ? null : { type, id });
+                } else {
+                    // Chọn chéo cột -> Đánh giá kết quả lập tức
+                    if (selection.id === id) {
+                        // Đúng
+                        playSound('correct');
+                        setMatchedIds(prev => [...prev, id]);
+                        setSelection(null);
+                        setStreak(p => p + 1);
+                        if (selectedMode === GAME_MODES.PRACTICE) gainXP(5);
+                    } else {
+                        // Sai
+                        playSound('wrong');
+                        setStreak(0);
+                        const termId = type === 'term' ? id : selection.id;
+                        const descId = type === 'desc' ? id : selection.id;
+                        
+                        setWrongPair({ term: termId, desc: descId });
+                        setTimeout(() => setWrongPair(null), 800); // Reset visual error sau 0.8s
+                        
+                        if (selectedMode === GAME_MODES.CHALLENGE) {
+                            setLives(l => l - 1);
+                        }
+                        setSelection(null);
+                    }
+                }
+            }, [selection, matchedIds, wrongPair, selectedMode]);
+
+
+            const finishGame = (isWin, isCompleted) => {
+                setTimerActive(false);
+                const sysItems = DATABASE[selectedSystem].items;
+                const total = sysItems.length;
+                const correct = matchedIds.length;
+                
+                let score = Math.round((correct / total) * 100);
+                let bonus = 0;
+
+                if (isCompleted && selectedMode === GAME_MODES.CHALLENGE) {
+                    bonus = timeLeft * 4; // Thưởng thời gian
+                    score += bonus;
+                    if (score >= 100) playSound('victory');
+                } else {
+                    playSound('select');
+                }
+
+                if (selectedMode === GAME_MODES.CHALLENGE) {
+                    const currentHigh = highScores[selectedSystem] || 0;
+                    if (score > currentHigh) {
+                        const newHigh = { ...highScores, [selectedSystem]: score };
+                        setHighScores(newHigh);
+                        localStorage.setItem('text_anatomy_highscores', JSON.stringify(newHigh));
+                    }
+                }
+
+                const xpGained = (correct * 5) + (bonus > 0 ? 50 : 0);
+                if (selectedMode === GAME_MODES.CHALLENGE) gainXP(xpGained);
+
+                setScoreData({
+                    total, correct, score, bonus, xpGained, isCompleted
+                });
+                setGameState('results');
+            };
+
+            if (gameState === 'menu') {
+                return (
+                    <div className="min-h-screen bg-cyber-bg flex flex-col p-6 items-center justify-center relative medical-grid">
+                        <div className="max-w-5xl w-full z-10">
+                            <div className="text-center mb-12">
+                                <div className="inline-flex items-center space-x-2 bg-cyan-950/40 border border-cyan-500/30 px-4 py-2 rounded-full text-cyan-400 mb-4 font-mono text-xs glow-teal">
+                                    <i className="ph-fill ph-terminal-window"></i>
+                                    <span>TEXT-BASED MEDICAL TERMINAL V3.0</span>
+                                </div>
+                                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight font-mono mb-3 text-slate-100">
+                                    ANATOMY <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-400">THEORY MATCH</span>
+                                </h1>
+                                <p className="text-slate-400 max-w-lg mx-auto text-sm">
+                                    Không hình ảnh. Không phân tâm. Chỉ có bạn và khối kiến thức lý thuyết giải phẫu học thuật khổng lồ.
+                                </p>
+                            </div>
+
+                            {/* User Profile */}
+                            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div className="flex items-center space-x-4">
+                                    <div className="w-12 h-12 rounded-xl bg-cyan-950 border border-cyan-500 flex items-center justify-center text-cyan-400 glow-teal font-mono font-bold text-lg">
+                                        L.{level}
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-bold text-slate-200 font-mono">Bác Sĩ Thực Tập</div>
+                                        <div className="text-xs text-slate-500 mt-1 font-mono">XP: {xp} / {level * 100}</div>
+                                        <div className="w-48 bg-slate-800 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                                            <div className="bg-cyan-500 h-full transition-all" style={{ width: `${(xp % 100)}%` }}></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Systems List */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {Object.entries(DATABASE).map(([key, data]) => (
+                                    <div key={key} className="bg-slate-900/30 border border-slate-800 rounded-2xl p-5 hover:bg-slate-900/80 hover:border-cyan-500/40 transition-all flex flex-col">
+                                        <div className="flex items-start space-x-4 mb-4">
+                                            <div className="w-12 h-12 shrink-0 rounded-xl bg-cyan-950/40 border border-cyan-800 flex items-center justify-center text-cyan-400 text-2xl">
+                                                <i className={data.icon}></i>
+                                            </div>
+                                            <div>
+                                                <h3 className="font-mono font-bold text-lg text-slate-200">{data.name}</h3>
+                                                <div className="text-xs text-cyan-500 font-mono mt-0.5">{data.items.length} Khái niệm</div>
+                                                <p className="text-xs text-slate-400 mt-2 line-clamp-2">{data.desc}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="mt-auto grid grid-cols-3 gap-2 border-t border-slate-800 pt-4">
+                                            <button onClick={() => startPlaying(key, GAME_MODES.STUDY)} className="py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-mono font-semibold transition">
+                                                Học liệu
+                                            </button>
+                                            <button onClick={() => startPlaying(key, GAME_MODES.PRACTICE)} className="py-2 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 rounded-lg text-xs font-mono font-bold transition">
+                                                Khớp nối
+                                            </button>
+                                            <button onClick={() => startPlaying(key, GAME_MODES.CHALLENGE)} className="py-2 bg-amber-600/20 hover:bg-amber-600/40 border border-amber-600/30 text-amber-400 rounded-lg text-xs font-mono font-bold transition flex items-center justify-center space-x-1">
+                                                <i className="ph-fill ph-timer text-sm"></i> <span>Tính giờ</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
             }
 
+            const currentSystem = DATABASE[selectedSystem];
+
             return (
-              <button 
-                key={idx} 
-                onClick={() => handleSelect(idx)}
-                disabled={isAnswered}
-                className={btnClass}
-              >
-                <div className="flex items-center justify-between">
-                  <span>{String.fromCharCode(65 + idx)}. {opt}</span>
-                  {isAnswered && idx === currentQ.answer && <CheckCircle className="text-green-500" size={20} />}
-                  {isAnswered && idx === selectedOption && idx !== currentQ.answer && <XCircle className="text-red-500" size={20} />}
+                <div className="min-h-screen h-screen bg-cyber-bg flex flex-col overflow-hidden">
+                    {/* Header Top Bar */}
+                    <header className="border-b border-slate-800 bg-slate-950 px-4 py-3 shrink-0 flex items-center justify-between z-20">
+                        <div className="flex items-center space-x-3">
+                            <button onClick={() => { playSound('select'); setGameState('menu'); }} className="w-9 h-9 border border-slate-800 rounded-lg hover:bg-slate-800 flex items-center justify-center text-slate-400 transition">
+                                <i className="ph ph-arrow-left"></i>
+                            </button>
+                            <div className="hidden sm:block">
+                                <div className="font-mono font-bold text-slate-200 text-sm flex items-center space-x-2">
+                                    <i className={`${currentSystem.icon} text-cyan-400`}></i>
+                                    <span>{currentSystem.name}</span>
+                                </div>
+                                <div className="text-[10px] text-slate-500 font-mono mt-0.5">Chế độ: {selectedMode}</div>
+                            </div>
+                        </div>
+
+                        {gameState === 'playing' && (
+                            <div className="flex items-center space-x-4">
+                                {streak > 1 && (
+                                    <div className="hidden sm:flex text-[10px] font-mono font-bold text-amber-400 bg-amber-950/40 px-2 py-1 rounded border border-amber-900 animate-pulse">
+                                        Combo x{streak}
+                                    </div>
+                                )}
+                                
+                                <div className="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg text-xs font-mono font-medium flex items-center">
+                                    <span className="text-slate-400 mr-2">Tiến độ:</span>
+                                    <span className="text-cyan-400 font-bold">{matchedIds.length}</span>
+                                    <span className="text-slate-600 mx-1">/</span>
+                                    <span className="text-slate-400">{currentSystem.items.length}</span>
+                                </div>
+
+                                {selectedMode === GAME_MODES.CHALLENGE && (
+                                    <>
+                                        <div className={`font-mono font-bold text-sm px-3 py-1.5 rounded-lg border flex items-center ${timeLeft < 15 ? 'text-rose-400 border-rose-500 bg-rose-950/30 animate-pulse' : 'text-slate-300 border-slate-800 bg-slate-900'}`}>
+                                            <i className="ph-fill ph-timer mr-1.5"></i>
+                                            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                                        </div>
+                                        <div className="flex space-x-1">
+                                            {[...Array(3)].map((_, i) => (
+                                                <i key={i} className={`ph-fill ph-heart text-sm ${i < lives ? 'text-rose-500 drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]' : 'text-slate-800'}`}></i>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </header>
+
+                    {/* Main Content Area */}
+                    <main className="flex-1 relative flex flex-col min-h-0">
+                        {/* 1. STUDY MODE: Flashcard List */}
+                        {gameState === 'study' && (
+                            <div className="flex-1 overflow-y-auto p-4 md:p-8 max-w-4xl mx-auto w-full space-y-4">
+                                <div className="bg-cyan-950/20 border border-cyan-900/50 rounded-xl p-4 mb-6">
+                                    <h2 className="text-cyan-400 font-mono font-bold text-lg flex items-center"><i className="ph ph-book-open mr-2"></i>Tài liệu học thuyết</h2>
+                                    <p className="text-xs text-slate-400 mt-1">Đọc kỹ các định nghĩa dưới đây trước khi tham gia chế độ luyện tập. Trò chơi yêu cầu bạn phải ghép chính xác thuật ngữ với định nghĩa của nó.</p>
+                                </div>
+                                {currentSystem.items.map((item, idx) => (
+                                    <div key={item.id} className="bg-slate-900/40 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition flex flex-col md:flex-row md:items-start gap-3">
+                                        <div className="md:w-1/3 shrink-0">
+                                            <div className="text-[10px] font-mono text-slate-500 mb-1">Mã tham chiếu: #{String(idx+1).padStart(2,'0')}</div>
+                                            <div className="font-mono font-bold text-cyan-300 text-base">{item.name}</div>
+                                        </div>
+                                        <div className="md:w-2/3 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">
+                                            <p className="text-sm text-slate-300 leading-relaxed">{item.desc}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {gameState === 'playing' && (
+                            <div className="flex-1 flex flex-col min-h-0 bg-slate-950">
+                                {/* Mobile Floating Selection Status */}
+                                <div className="md:hidden shrink-0 bg-slate-900 border-b border-slate-800 p-3 shadow-md z-10 sticky top-0">
+                                    <div className="text-[10px] text-slate-400 font-mono mb-1 uppercase tracking-wider">Mục đang chọn:</div>
+                                    {selection ? (
+                                        <div className="font-mono text-xs font-bold text-cyan-300 bg-cyan-950/40 border border-cyan-800 p-2 rounded flex justify-between items-center">
+                                            <span className="line-clamp-1 truncate">
+                                                {selection.type === 'term' ? currentSystem.items.find(i=>i.id===selection.id).name : currentSystem.items.find(i=>i.id===selection.id).desc}
+                                            </span>
+                                            <button onClick={() => setSelection(null)} className="ml-2 text-slate-400 p-1"><i className="ph ph-x"></i></button>
+                                        </div>
+                                    ) : (
+                                        <div className="font-mono text-xs text-slate-600 italic p-2 border border-dashed border-slate-800 rounded">
+                                            Chưa chọn mục nào...
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Desktop Floating Guide */}
+                                <div className="hidden md:flex shrink-0 bg-slate-900/80 border-b border-slate-800 p-2 justify-center items-center text-xs font-mono text-slate-400 space-x-6 z-10">
+                                    <div className="flex items-center"><i className="ph-fill ph-cursor-click text-cyan-500 mr-2"></i> 1. Chọn Thuật ngữ bên trái</div>
+                                    <i className="ph ph-arrow-right text-slate-600"></i>
+                                    <div className="flex items-center"><i className="ph-fill ph-book-open text-teal-500 mr-2"></i> 2. Chọn Định nghĩa tương ứng bên phải</div>
+                                </div>
+
+                                {/* Two Columns Board */}
+                                <div className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6 no-scrollbar">
+                                    <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 h-full">
+                                        
+                                        {/* Column 1: Terms */}
+                                        <div className="flex flex-col space-y-3">
+                                            <h3 className="sticky top-0 bg-slate-950 py-2 font-mono font-bold text-slate-400 text-sm border-b border-slate-800 z-10">THUẬT NGỮ CƠ QUAN</h3>
+                                            {shuffledTerms.map(term => {
+                                                const isMatched = matchedIds.includes(term.id);
+                                                const isSelected = selection?.type === 'term' && selection?.id === term.id;
+                                                const isWrong = wrongPair?.term === term.id;
+
+                                                let btnClass = "w-full text-left p-4 rounded-xl border-2 transition-all duration-200 font-mono font-bold text-sm relative overflow-hidden ";
+                                                
+                                                if (isMatched) {
+                                                    btnClass += "bg-emerald-950/20 border-emerald-900/50 text-emerald-700 opacity-40 cursor-not-allowed";
+                                                } else if (isWrong) {
+                                                    btnClass += "bg-rose-950/40 border-rose-500 text-rose-300 animate-shake glow-red";
+                                                } else if (isSelected) {
+                                                    btnClass += "bg-cyan-950/60 border-cyan-400 text-cyan-200 scale-[1.02] glow-teal z-10";
+                                                } else {
+                                                    btnClass += "bg-slate-900/60 border-slate-800 text-slate-300 hover:border-slate-600 hover:bg-slate-800 cursor-pointer shadow-sm";
+                                                }
+
+                                                return (
+                                                    <button key={`term-${term.id}`} disabled={isMatched} onClick={() => handleItemClick('term', term.id)} className={btnClass}>
+                                                        <span className="relative z-10">{term.name}</span>
+                                                        {isMatched && <i className="ph-fill ph-check-circle absolute right-4 top-1/2 -translate-y-1/2 text-xl text-emerald-600"></i>}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Column 2: Definitions */}
+                                        <div className="flex flex-col space-y-3 mt-8 md:mt-0">
+                                            <h3 className="sticky top-0 bg-slate-950 py-2 font-mono font-bold text-slate-400 text-sm border-b border-slate-800 z-10">ĐỊNH NGHĨA CHỨC NĂNG LÝ THUYẾT</h3>
+                                            {shuffledDescs.map(desc => {
+                                                const isMatched = matchedIds.includes(desc.id);
+                                                const isSelected = selection?.type === 'desc' && selection?.id === desc.id;
+                                                const isWrong = wrongPair?.desc === desc.id;
+
+                                                let cardClass = "w-full text-left p-4 rounded-xl border-2 transition-all duration-200 relative overflow-hidden ";
+                                                
+                                                if (isMatched) {
+                                                    cardClass += "bg-emerald-950/10 border-emerald-900/30 text-emerald-800 opacity-40 cursor-not-allowed";
+                                                } else if (isWrong) {
+                                                    cardClass += "bg-rose-950/30 border-rose-500 text-rose-200 animate-shake glow-red";
+                                                } else if (isSelected) {
+                                                    cardClass += "bg-teal-950/60 border-teal-400 text-teal-100 scale-[1.02] shadow-[0_0_15px_rgba(45,212,191,0.3)] z-10";
+                                                } else {
+                                                    cardClass += "bg-slate-900/40 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800/80 cursor-pointer shadow-sm";
+                                                }
+
+                                                return (
+                                                    <button key={`desc-${desc.id}`} disabled={isMatched} onClick={() => handleItemClick('desc', desc.id)} className={cardClass}>
+                                                        <p className="relative z-10 text-[13px] md:text-sm leading-relaxed pr-6">{desc.desc}</p>
+                                                        {isMatched && <i className="ph-bold ph-check absolute right-4 top-1/2 -translate-y-1/2 text-emerald-700 text-lg"></i>}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {gameState === 'results' && scoreData && (
+                            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex items-center justify-center bg-slate-950">
+                                <div className="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-10 text-center shadow-2xl relative overflow-hidden">
+                                    {/* Decor */}
+                                    <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full blur-3xl opacity-20 ${scoreData.isCompleted ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
+
+                                    <div className="mb-6">
+                                        {scoreData.isCompleted ? (
+                                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-950 border-2 border-emerald-500 text-emerald-400 mb-4 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                                                <i className="ph-fill ph-check-circle text-3xl"></i>
+                                            </div>
+                                        ) : (
+                                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-rose-950 border-2 border-rose-500 text-rose-400 mb-4">
+                                                <i className="ph-fill ph-x-circle text-3xl"></i>
+                                            </div>
+                                        )}
+                                        <h2 className="text-2xl font-mono font-black text-slate-100">
+                                            {scoreData.isCompleted ? 'HOÀN THÀNH BÀI KIỂM TRA' : 'THẤT BẠI NHIỆM VỤ'}
+                                        </h2>
+                                        <p className="text-slate-400 text-sm mt-2 font-mono">
+                                            Hệ thống: {currentSystem.name}
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 mb-8 flex flex-col items-center">
+                                        <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-2">ĐIỂM ĐÁNH GIÁ NĂNG LỰC</div>
+                                        <div className="text-5xl font-mono font-black text-cyan-400 flex items-baseline">
+                                            {scoreData.score}
+                                            <span className="text-lg font-normal text-slate-600 ml-1">/100</span>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-2 gap-4 w-full mt-6 text-sm font-mono">
+                                            <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex flex-col">
+                                                <span className="text-slate-500 text-xs mb-1">Khớp đúng</span>
+                                                <span className="font-bold text-emerald-400 text-lg">{scoreData.correct} / {scoreData.total}</span>
+                                            </div>
+                                            <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex flex-col">
+                                                <span className="text-slate-500 text-xs mb-1">XP Thu được</span>
+                                                <span className="font-bold text-amber-400 text-lg">+{scoreData.xpGained}</span>
+                                            </div>
+                                        </div>
+
+                                        {scoreData.bonus > 0 && (
+                                            <div className="w-full mt-4 bg-teal-950/30 border border-teal-900/50 p-2 rounded-lg text-teal-400 text-xs flex justify-center items-center font-mono">
+                                                <i className="ph-fill ph-lightning mr-2"></i> Thưởng tốc độ hoàn thành: +{scoreData.bonus} điểm
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col sm:flex-row gap-3">
+                                        <button onClick={() => startPlaying(selectedSystem, selectedMode)} className="flex-1 py-3 px-4 bg-cyan-950 hover:bg-cyan-900 border border-cyan-500 text-cyan-300 rounded-xl font-mono font-bold transition">
+                                            Luyện lại màn này
+                                        </button>
+                                        <button onClick={() => setGameState('menu')} className="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl font-mono font-bold transition">
+                                            Về Menu chính
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </main>
                 </div>
-              </button>
             );
-          })}
-        </div>
+        };
 
-        {isAnswered && (
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-6 animate-fade-in">
-            <p className="font-bold text-blue-800 mb-1">Giải thích:</p>
-            <p className="text-gray-700">{currentQ.explanation}</p>
-          </div>
-        )}
-
-        <div className="flex justify-end mt-auto">
-          <button
-            onClick={handleNext}
-            disabled={!isAnswered}
-            className={`px-6 py-3 rounded-lg flex items-center gap-2 font-bold transition-colors ${
-              isAnswered ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            {currentIndex < questions.length - 1 ? 'Câu tiếp theo' : 'Hoàn thành'} <ChevronRight size={20} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// --- COMPONENT: FLASHCARD ÔN TẬP ---
-const Flashcard = ({ title, front, back }) => {
-  const [flipped, setFlipped] = useState(false);
-  return (
-    <div 
-      className="h-48 w-full perspective-1000 cursor-pointer"
-      onClick={() => setFlipped(!flipped)}
-    >
-      <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${flipped ? 'rotate-y-180' : ''}`}>
-        {/* Mặt trước */}
-        <div className="absolute w-full h-full backface-hidden bg-white border-2 border-blue-100 rounded-xl shadow-sm p-4 flex flex-col items-center justify-center text-center">
-          <span className="text-sm font-bold text-blue-500 uppercase tracking-wider mb-2">{title}</span>
-          <h3 className="text-xl font-bold text-gray-800">{front}</h3>
-          <p className="text-xs text-gray-400 mt-4">Chạm để lật</p>
-        </div>
-        {/* Mặt sau */}
-        <div className="absolute w-full h-full backface-hidden bg-blue-600 text-white rounded-xl shadow-lg p-4 flex items-center justify-center text-center rotate-y-180">
-          <p className="text-lg font-medium">{back}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const CrashCourseSection = () => {
-  const cards = [
-    { title: "Hệ Xương", front: "Số lượng xương người trưởng thành?", back: "206 xương" },
-    { title: "Hệ Cơ", front: "Cơ nào không theo ý muốn?", back: "Cơ trơn (ruột, mạch máu) & Cơ tim" },
-    { title: "Tuần Hoàn", front: "Tâm thất trái bơm máu đi đâu?", back: "Vào Động mạch chủ (Tuần hoàn hệ thống)" },
-    { title: "Thần Kinh", front: "Thần kinh ngoại biên gồm gì?", back: "12 đôi dây TK sọ & 31 đôi dây TK tủy" },
-    { title: "Hô Hấp", front: "Đơn vị chức năng của phổi?", back: "Phế nang (Nơi trao đổi khí)" },
-    { title: "Tiêu Hóa", front: "Các tuyến tiêu hóa phụ?", back: "Gan, Túi mật, Tụy" },
-    { title: "Tiết Niệu", front: "Chức năng chính của hệ tiết niệu?", back: "Tạo nước tiểu, điều hòa nước, điện giải & huyết áp" },
-    { title: "Sinh Dục", front: "Cơ quan sinh sản chính?", back: "Nam: Tinh hoàn | Nữ: Buồng trứng" },
-  ];
-
-  return (
-    <div className="h-full overflow-y-auto pb-10">
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-6 mb-8 text-white shadow-lg text-center">
-        <h2 className="text-2xl font-bold mb-2">⚡ Ôn Thi Cấp Tốc</h2>
-        <p className="opacity-90">Lật các thẻ ghi nhớ dưới đây để ôn lại các từ khóa quan trọng nhất trước khi thi.</p>
-      </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-2">
-        {cards.map((c, i) => (
-          <Flashcard key={i} title={c.title} front={c.front} back={c.back} />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// --- COMPONENT: ANKI ANATOMY ---
-const AnkiSection = () => {
-  const [imageSrc, setImageSrc] = useState(null);
-  const [boxes, setBoxes] = useState([]);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [startPoint, setStartPoint] = useState(null);
-  const [currentBox, setCurrentBox] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [tempBox, setTempBox] = useState(null);
-  const [labelInput, setLabelInput] = useState("");
-  const containerRef = useRef(null);
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => setImageSrc(event.target.result);
-      reader.readAsDataURL(file);
-      setBoxes([]); // Reset khi up ảnh mới
-    }
-  };
-
-  const getCoordinates = (e) => {
-    const rect = containerRef.current.getBoundingClientRect();
-    let clientX, clientY;
-    if (e.touches && e.touches.length > 0) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    }
-    // Tính phần trăm để responsive
-    const x = ((clientX - rect.left) / rect.width) * 100;
-    const y = ((clientY - rect.top) / rect.height) * 100;
-    return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
-  };
-
-  const startDrawing = (e) => {
-    if (showModal) return;
-    // Bỏ qua nếu click vào nút xóa
-    if(e.target.closest('.delete-btn')) return;
-    e.preventDefault();
-    const coords = getCoordinates(e);
-    setIsDrawing(true);
-    setStartPoint(coords);
-    setCurrentBox({ x: coords.x, y: coords.y, w: 0, h: 0 });
-  };
-
-  const draw = (e) => {
-    if (!isDrawing) return;
-    e.preventDefault();
-    const coords = getCoordinates(e);
-    const w = coords.x - startPoint.x;
-    const h = coords.y - startPoint.y;
-    
-    setCurrentBox({
-      x: w < 0 ? coords.x : startPoint.x,
-      y: h < 0 ? coords.y : startPoint.y,
-      w: Math.abs(w),
-      h: Math.abs(h)
-    });
-  };
-
-  const stopDrawing = () => {
-    if (!isDrawing) return;
-    setIsDrawing(false);
-    
-    // Chỉ lưu nếu vùng vẽ đủ lớn
-    if (currentBox && currentBox.w > 2 && currentBox.h > 2) {
-      setTempBox(currentBox);
-      setShowModal(true);
-      setLabelInput("");
-    }
-    setCurrentBox(null);
-  };
-
-  const saveLabel = () => {
-    if (labelInput.trim() !== "") {
-      setBoxes([...boxes, { ...tempBox, id: Date.now(), label: labelInput }]);
-    }
-    setShowModal(false);
-    setTempBox(null);
-  };
-
-  const deleteBox = (id) => {
-    setBoxes(boxes.filter(b => b.id !== id));
-  };
-
-  return (
-    <div className="h-full flex flex-col">
-      <div className="bg-white p-4 rounded-xl shadow mb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold flex items-center gap-2"><ImageIcon className="text-blue-500"/> Anki Anatomy</h2>
-          <p className="text-sm text-gray-500">Tải ảnh lên, khoanh vùng cấu trúc để tạo Flashcard tự học.</p>
-        </div>
-        <div>
-          <input type="file" id="imageUpload" accept="image/*" className="hidden" onChange={handleImageUpload} />
-          <label htmlFor="imageUpload" className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 font-medium">
-            <Upload size={18} /> Tải ảnh giải phẫu
-          </label>
-        </div>
-      </div>
-
-      <div className="flex-1 bg-gray-100 rounded-xl overflow-hidden relative shadow-inner border-2 border-dashed border-gray-300 flex items-center justify-center">
-        {!imageSrc ? (
-          <div className="text-center text-gray-400 p-6">
-            <ImageIcon size={64} className="mx-auto mb-4 opacity-50" />
-            <p>Chưa có hình ảnh. Vui lòng tải ảnh lên để bắt đầu.</p>
-          </div>
-        ) : (
-          <div 
-            ref={containerRef}
-            className="relative w-full max-w-3xl select-none"
-            onMouseDown={startDrawing}
-            onMouseMove={draw}
-            onMouseUp={stopDrawing}
-            onMouseLeave={stopDrawing}
-            onTouchStart={startDrawing}
-            onTouchMove={draw}
-            onTouchEnd={stopDrawing}
-          >
-            <img src={imageSrc} alt="Anatomy" className="w-full h-auto block pointer-events-none" />
-            
-            {/* Các hộp đã vẽ */}
-            {boxes.map(box => (
-              <div 
-                key={box.id}
-                className="absolute border-2 border-green-500 bg-green-500 bg-opacity-20 group"
-                style={{ left: `${box.x}%`, top: `${box.y}%`, width: `${box.w}%`, height: `${box.h}%` }}
-              >
-                <div className="absolute -top-7 left-0 bg-green-600 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                  {box.label}
-                </div>
-                <button 
-                  onClick={() => deleteBox(box.id)}
-                  className="delete-btn absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                >
-                  <X size={12} />
-                </button>
-              </div>
-            ))}
-
-            {/* Hộp đang vẽ */}
-            {isDrawing && currentBox && (
-              <div 
-                className="absolute border-2 border-blue-500 border-dashed bg-blue-500 bg-opacity-10"
-                style={{ left: `${currentBox.x}%`, top: `${currentBox.y}%`, width: `${currentBox.w}%`, height: `${currentBox.h}%` }}
-              />
-            )}
-          </div>
-        )}
-
-        {/* Modal nhập tên */}
-        {showModal && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-xl shadow-2xl w-80">
-              <h3 className="text-lg font-bold mb-4">Tên cấu trúc giải phẫu:</h3>
-              <input 
-                type="text" 
-                autoFocus
-                value={labelInput}
-                onChange={e => setLabelInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && saveLabel()}
-                placeholder="VD: Tâm thất trái..."
-                className="w-full border-2 border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:border-blue-500"
-              />
-              <div className="flex justify-end gap-2">
-                <button onClick={() => setShowModal(false)} className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">Hủy</button>
-                <button onClick={saveLabel} className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">Lưu</button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// --- MAIN APP COMPONENT ---
-export default function App() {
-  const [activeTab, setActiveTab] = useState('theory');
-
-  const tabs = [
-    { id: 'theory', name: 'Lý thuyết', icon: <BookOpen size={20} /> },
-    { id: 'quiz', name: 'Trắc nghiệm', icon: <CheckSquare size={20} /> },
-    { id: 'crash', name: 'Ôn thi cấp tốc', icon: <Zap size={20} /> },
-    { id: 'anki', name: 'Anki Anatomy', icon: <ImageIcon size={20} /> },
-  ];
-
-  return (
-    <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
-      {/* Cấu hình CSS cho hiệu ứng lật 3D */}
-      <style>{`
-        .perspective-1000 { perspective: 1000px; }
-        .transform-style-3d { transform-style: preserve-3d; }
-        .backface-hidden { backface-visibility: hidden; }
-        .rotate-y-180 { transform: rotateY(180deg); }
-        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-      `}</style>
-
-      {/* Header & Navigation */}
-      <header className="bg-white shadow-sm z-10 sticky top-0">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between py-4">
-            <h1 className="text-2xl font-extrabold text-blue-700 flex items-center gap-2 mb-4 md:mb-0">
-              <Plus className="bg-blue-600 text-white rounded-full p-1" size={28} />
-              MediStudy Anatomy
-            </h1>
-            
-            <nav className="flex overflow-x-auto pb-2 md:pb-0 hide-scrollbar gap-2">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-colors font-medium text-sm ${
-                    activeTab === tab.id 
-                      ? 'bg-blue-600 text-white shadow-md' 
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {tab.icon} {tab.name}
-                </button>
-              ))}
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-6 overflow-hidden">
-        {activeTab === 'theory' && <TheorySection />}
-        {activeTab === 'quiz' && <QuizSection />}
-        {activeTab === 'crash' && <CrashCourseSection />}
-        {activeTab === 'anki' && <AnkiSection />}
-      </main>
-    </div>
-  );
-}
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
