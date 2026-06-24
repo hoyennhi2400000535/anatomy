@@ -1,2092 +1,496 @@
-import React, { useState, useEffect, useRef } from 'react';
+ <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anatomy Match Game</title>
+    
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-// ==========================================
-// 1. DỮ LIỆU MẪU LÝ THUYẾT & TRẮC NGHIỆM CHI TIẾT
-// ==========================================
-
-const THEMES = {
-  SKELETON: 'skeleton',
-  MUSCLE: 'muscle',
-  NERVOUS: 'nervous',
-  VASCULAR: 'vascular',
-  SYSTEMS: 'systems'
-};
-
-const THEORY_DATA = {
-  [THEMES.SKELETON]: {
-    title: 'Hệ Xương (Skeletal System)',
-    sections: [
-      {
-        title: '1. Đại cương',
-        content: `Hệ xương gồm **206 xương** ở người trưởng thành, tạo thành bộ khung vững chắc cho cơ thể. Các xương liên kết chặt chẽ với nhau bởi các khớp.
-        
-**Các chức năng chính bao gồm:**
-* **Nâng đỡ cơ thể:** Làm khung cho các mô mềm bám vào.
-* **Bảo vệ:** Che chở các cơ quan quan trọng (hộp sọ bảo vệ não, lồng ngực bảo vệ tim phổi).
-* **Tham gia vận động:** Làm điểm bám vững chắc cho hệ thống cơ vân.
-* **Tạo máu:** Tủy đỏ xương sản sinh các tế bào máu.
-* **Dự trữ:** Lưu trữ khoáng chất quan trọng ($Ca^{2+}$, $P$) và mô mỡ ở tủy vàng.`
-      },
-      {
-        title: '2. Phân chia bộ xương',
-        content: `Bộ xương người được chia làm hai phần chính với tổng số 206 xương:
-        
-* **Xương trục (Axial Skeleton - 80 xương):**
-    * *Xương sọ*: Bảo vệ não bộ và các giác quan mặt.
-    * *Xương móng & Các xương con của tai*: Hỗ trợ nói và nghe.
-    * *Cột sống*: Nâng đỡ thân mình và bảo vệ tủy sống.
-    * *Lồng ngực*: Gồm xương ức và 24 xương sườn.
-* **Xương phụ (Appendicular Skeleton - 126 xương):**
-    * *Đai vai và chi trên*: Xương đòn, xương bả vai, xương cánh tay, cẳng tay, cổ tay, bàn ngón tay.
-    * *Đai chậu và chi dưới*: Xương chậu, xương đùi, xương bánh chè, xương cẳng chân, cổ chân, bàn ngón chân.`
-      },
-      {
-        title: '3. Phân loại xương theo hình thể',
-        content: `Dựa vào hình thể ngoài, xương được phân thành 5 nhóm chính:
-        
-1.  **Xương dài (Long bones):** Có chiều dài vượt trội, gồm một thân và hai đầu. Bên trong thân xương có ống tủy. *Ví dụ:* Xương đùi, xương cánh tay.
-2.  **Xương ngắn (Short bones):** Kích thước 3 chiều gần bằng nhau, cấu tạo chủ yếu là xương xốp. *Ví dụ:* Xương cổ tay, xương cổ chân.
-3.  **Xương dẹt (Flat bones):** Bản xương mỏng, rộng, gồm hai bản xương đặc kẹp giữa một lớp xương xốp. *Ví dụ:* Xương sọ, xương ức, xương bả vai.
-4.  **Xương bất định hình (Irregular bones):** Hình dạng phức tạp, không xếp vào các nhóm trên. *Ví dụ:* Đốt sống, xương hàm dưới.
-5.  **Xương vừng (Sesamoid bones):** Xương nhỏ nằm trong gân cơ, giúp giảm ma sát và đổi hướng lực kéo. *Ví dụ:* Xương bánh chè.`
-      },
-      {
-        title: '4. Cấu tạo xương',
-        content: `Cấu tạo xương được nghiên cứu dưới hai góc độ:
-        
-* **Cấu tạo đại thể:**
-    * *Màng xương (Periosteum)*: Lớp màng xơ liên kết ngoài cùng, chứa nhiều mạch máu và thần kinh, có vai trò nuôi dưỡng và giúp xương phát triển bề ngang.
-    * *Xương đặc (Compact bone)*: Lớp mô xương rắn chắc, chịu lực chính nằm ở phía ngoài.
-    * *Xương xốp (Spongy bone)*: Cấu trúc gồm các bè xương đan xen như tổ ong, chứa tủy xương bên trong.
-    * *Ống tủy (Medullary cavity)*: Nằm ở giữa thân xương dài, chứa tủy xương.
-* **Cấu tạo vi thể:**
-    * *Tế bào xương*: Gồm **Tạo cốt bào** (Osteoblast - tạo xương), **Cốt bào** (Osteocyte - duy trì mô xương), và **Hủy cốt bào** (Osteoclast - tiêu xương, tái cấu trúc).
-    * *Hệ Havers (Osteon)*: Đơn vị cấu tạo cơ bản của xương đặc, gồm các lá xương đồng tâm bao quanh ống Havers chứa mạch máu.`
-      },
-      {
-        title: '5. Thành phần hóa học',
-        content: `Xương là sự kết hợp hoàn hảo giữa độ dẻo dai và độ cứng chắc nhờ 2 thành phần chính:
-        
-* **Chất hữu cơ (≈ 1/3 trọng lượng):** Chủ yếu là Collagen tuýp I, giúp xương có tính đàn hồi, dẻo dai, chống lại các lực bẻ gãy.
-* **Chất vô cơ (≈ 2/3 trọng lượng):** Chủ yếu là các muối Calci Phosphat ($Ca_3(PO_4)_2$) dưới dạng tinh thể Hydroxyapatite, giúp xương có độ cứng, chịu được lực nén.`
-      },
-      {
-        title: '6. Sự phát triển của xương',
-        content: `Quá trình tạo xương (cốt hóa) diễn ra theo hai hình thức chính:
-        
-* **Cốt hóa màng (Intramembranous ossification):** Xương được hình thành trực tiếp từ màng mô liên kết nguyên thủy. *Ví dụ:* Các xương dẹt vòm sọ.
-* **Cốt hóa sụn (Endochondral ossification):** Xương được hình thành thay thế cho một mô hình sụn có trước. *Ví dụ:* Xương dài (xương đùi, cánh tay).`
-      },
-      {
-        title: '7. Tủy xương (Bone Marrow)',
-        content: `Nằm trong các hốc xương xốp và ống tủy xương dài:
-        
-* **Tủy đỏ (Red marrow):** Đảm nhiệm chức năng tạo các tế bào máu. Có nhiều ở trẻ em. Ở người lớn, tủy đỏ khu trú ở đầu xương dài và xương dẹt.
-* **Tủy vàng (Yellow marrow):** Chứa nhiều mô mỡ, không còn khả năng tạo máu trực tiếp (nhưng có thể chuyển đổi ngược lại thành tủy đỏ khi mất máu nặng). Chiếm ưu thế ở thân xương dài người lớn.`
-      },
-      {
-        title: '8. Các mốc giải phẫu thường gặp',
-        content: `Để mô tả và định vị, các mốc trên xương được gọi tên như sau:
-        
-* **Mỏm (Process):** Chỗ lồi hẳn ra ngoài bề mặt xương để cơ bám.
-* **Mào (Crest):** Gờ xương nổi lên kéo dài thành đường.
-* **Gai (Spine):** Mỏm nhọn, sắc bén.
-* **Lồi cầu (Condyle):** Diện diện khớp tròn, nhẵn.
-* **Củ (Tubercle) / Củ lớn, củ bé:** Mấu xương nhỏ, gồ ghề.
-* **Hố (Fossa):** Vùng trũng hoặc lõm sâu xuống bề mặt xương.
-* **Lỗ (Foramen):** Khoảng hở xuyên qua xương cho mạch máu và dây thần kinh đi qua.`
-      }
-    ]
-  },
-  [THEMES.MUSCLE]: {
-    title: 'Hệ Cơ (Muscular System)',
-    sections: [
-      {
-        title: '1. Đại cương',
-        content: `Hệ cơ là cơ quan vận động chủ động của cơ thể, chiếm khoảng **40 - 50% trọng lượng cơ thể** ở người trưởng thành. Cơ có khả năng co rút sinh lực giúp cơ thể di chuyển, thực hiện các cử động tinh tế, duy trì tư thế thẳng đứng và sản sinh nhiệt lượng.`
-      },
-      {
-        title: '2. Chức năng của cơ',
-        content: `* **Vận động:** Di chuyển toàn bộ cơ thể hoặc các phần của cơ thể.
-* **Duy trì tư thế:** Giúp cơ thể giữ thăng bằng chống lại lực hút của trái đất.
-* **Bảo vệ:** Che chở các tạng bên dưới (đặc biệt là cơ thành bụng bảo vệ nội tạng).
-* **Sinh nhiệt:** Quá trình co cơ tiêu thụ ATP giải phóng khoảng 75% năng lượng dưới dạng nhiệt giúp duy trì hằng định thân nhiệt.`
-      },
-      {
-        title: '3. Phân loại cơ',
-        content: `Cơ thể người có 3 loại mô cơ chính:
-        
-1.  **Cơ vân (Skeletal muscle):** Bám vào xương. Hoạt động theo ý muốn (chủ động) dưới sự chi phối của hệ thần kinh trung ương. Có các vân sáng tối xen kẽ dưới kính hiển vi. *Ví dụ:* Cơ nhị đầu cánh tay, cơ tứ đầu đùi.
-2.  **Cơ trơn (Smooth muscle):** Nằm ở thành các tạng rỗng (dạ dày, ruột, mạch máu, tử cung). Hoạt động không theo ý muốn tự chủ. Không có vân ngang.
-3.  **Cơ tim (Cardiac muscle):** Chỉ tìm thấy ở thành tim. Cấu trúc có vân ngang (giống cơ vân) nhưng hoạt động tự động, nhịp nhàng không theo ý muốn (giống cơ trơn).`
-      },
-      {
-        title: '4. Hình dạng cơ',
-        content: `* **Cơ dài (Long muscles):** Thường phân bố ở các chi, hỗ trợ biên độ vận động lớn. *Ví dụ:* Cơ may, cơ nhị đầu.
-* **Cơ ngắn (Short muscles):** Phân bố ở các vùng vận động hẹp, cần sự tinh tế. *Ví dụ:* Các cơ gian sườn, cơ quanh cột sống.
-* **Cơ rộng / dẹt (Flat muscles):** Thường ở thành ngực, bụng tạo thành các tấm cơ rộng bảo vệ khoang cơ thể. *Ví dụ:* Cơ chéo bụng ngoài.
-* **Cơ vòng (Sphincter):** Các thớ cơ xếp tròn xung quanh các lỗ tự nhiên để đóng mở lỗ đó. *Ví dụ:* Cơ vòng miệng, cơ vòng hậu môn.`
-      },
-      {
-        title: '5. Cấu tạo cơ vân',
-        content: `* **Cấu tạo đại thể:**
-    * *Nguyên ủy (Origin)*: Đầu bám cố định của cơ (thường ở phía gần gốc chi hoặc trục cơ thể).
-    * *Bụng cơ (Belly)*: Phần phình to ở giữa, có khả năng co rút co ngắn lại.
-    * *Bám tận (Insertion)*: Đầu bám di động của cơ (khi cơ co, bám tận sẽ bị kéo về phía nguyên ủy).
-    * *Gân cơ (Tendon)*: Phần mô liên kết xơ dai, không co rút, giúp nối bụng cơ vào xương.
-* **Cấu tạo vi thể:**
-    * Cơ được bao bọc bởi màng ngoài cơ (epimysium). Bên trong chia thành các **bó cơ** bọc bởi màng trung cơ (perimysium). Trong bó cơ là các **sợi cơ** (tế bào cơ) bọc bởi màng trong cơ (endomysium).
-    * Trong tế bào cơ chứa nhiều **tơ cơ (myofibril)**. Tơ cơ được chia thành các đơn vị co cơ nối tiếp nhau gọi là **Sarcomere**.`
-      },
-      {
-        title: '6. Cấu trúc Sarcomere',
-        content: `Sarcomere là đơn vị cấu trúc và chức năng cơ bản của quá trình co cơ vân:
-        
-* Thành phần gồm 2 loại sợi protein chính:
-    * *Sợi Actin (sợi mảnh)*: Bám vào vạch Z ở hai đầu sarcomere.
-    * *Sợi Myosin (sợi dày)*: Nằm ở trung tâm sarcomere, có các cầu nối (đầu myosin) hướng về sợi actin.
-* **Cơ chế co cơ (Thuyết sợi trượt):** Khi có kích thích thần kinh và giải phóng ion $Ca^{2+}$, các đầu myosin bám vào sợi actin và gập lại, kéo sợi actin trượt sâu vào vùng trung tâm của myosin. Kết quả: **Vạch Z xích lại gần nhau, sarcomere co ngắn lại**, trong khi chiều dài của từng sợi actin và myosin hoàn toàn không thay đổi.`
-      },
-      {
-        title: '7. Đặc tính sinh lý của cơ',
-        content: `* **Tính hưng phấn:** Khả năng nhận và đáp ứng với xung động thần kinh kích thích.
-* **Tính dẫn truyền:** Khả năng lan truyền xung động dọc theo màng tế bào cơ.
-* **Tính co thắt:** Khả năng rút ngắn chiều dài và sinh lực khi bị kích thích.
-* **Tính đàn hồi:** Khả năng kéo giãn ra và trở về hình dạng ban đầu sau khi lực co thắt ngừng.`
-      },
-      {
-        title: '8. Các kiểu co cơ',
-        content: `* **Co cơ đẳng trường (Isometric contraction):** Chiều dài của cơ không thay đổi, nhưng trương lực (lực cơ) tăng cao. *Ví dụ:* Khi bạn dùng tay đẩy một bức tường kiên cố.
-* **Co cơ đẳng trương (Isotonic contraction):** Chiều dài của cơ thay đổi (co ngắn hoặc giãn dài ra) trong khi trương lực cơ giữ mức ổn định tương đối. *Ví dụ:* Khi bạn cầm tạ nâng lên hạ xuống.`
-      },
-      {
-        title: '9. Hoạt động phối hợp của cơ',
-        content: `Các cơ không hoạt động riêng lẻ mà phối hợp nhịp nhàng:
-        
-* **Cơ chủ vận (Agonist):** Cơ chịu trách nhiệm chính tạo ra cử động mong muốn.
-* **Cơ đối kháng (Antagonist):** Cơ thực hiện động tác ngược lại với cơ chủ vận, giúp kiểm soát tốc độ và độ mượt của cử động (ví dụ: cơ tam đầu đối kháng cơ nhị đầu).
-* **Cơ hiệp đồng (Synergist):** Hỗ trợ cơ chủ vận bằng cách tăng thêm lực kéo hoặc ngăn cử động không mong muốn ở khớp lân cận.
-* **Cơ cố định (Fixator):** Giữ vững xương bám của cơ chủ vận để tạo điểm tựa vững chắc.`
-      }
-    ]
-  },
-  [THEMES.NERVOUS]: {
-    title: 'Hệ Thần Kinh (Nervous System)',
-    sections: [
-      {
-        title: '1. Đại cương',
-        content: `Hệ thần kinh là hệ thống cơ quan cao cấp nhất điều khiển, điều hòa và phối hợp hoạt động của toàn bộ cơ thể, giúp cơ thể thích nghi với những thay đổi của môi trường bên ngoài và bên trong.`
-      },
-      {
-        title: '2. Phân chia hệ thần kinh',
-        content: `Có hai cách phân chia hệ thần kinh chính:
-        
-* **Phân chia theo giải phẫu:**
-    * **Hệ thần kinh trung ương (CNS):** Gồm **Não bộ** (nằm trong hộp sọ) và **Tủy sống** (nằm trong ống sống). Là trung tâm phân tích, xử lý và lưu trữ thông tin.
-    * **Hệ thần kinh ngoại biên (PNS):** Gồm **12 đôi dây thần kinh sọ** xuất phát từ não bộ, **31 đôi dây thần kinh tủy** xuất phát từ tủy sống và các hạch thần kinh đi kèm.
-* **Phân chia theo chức năng:**
-    * **Hệ thần kinh thân thể (Somatic):** Chi phối cơ vân, điều khiển các hoạt động vận động chủ động theo ý muốn và tiếp nhận cảm giác bản thể.
-    * **Hệ thần kinh tự chủ / thực vật (Autonomic):** Chi phối cơ trơn, cơ tim, tuyến bài tiết. Điều khiển các chức năng sinh tồn tự động không theo ý muốn. Chia làm 2 phân hệ đối kháng: **Giao cảm** và **Đối giao cảm**.`
-      },
-      {
-        title: '3. Mô thần kinh',
-        content: `Gồm hai loại tế bào chính:
-        
-1.  **Nơron (Neuron - Tế bào thần kinh chính thức):** Đơn vị cấu tạo và chức năng của hệ thần kinh. Có khả năng phát sinh và dẫn truyền xung động thần kinh. Cấu tạo gồm:
-    * *Thân tế bào (Soma)*: Chứa nhân và các bào quan, là trung tâm dinh dưỡng.
-    * *Sợi nhánh (Dendrites)*: Các nhánh ngắn, nhận thông tin truyền về thân.
-    * *Sợi trục (Axon)*: Một sợi dài duy nhất dẫn truyền xung động đi xa khỏi thân, tận cùng bằng các cúc tận cùng chứa chất truyền tin hóa học.
-2.  **Tế bào thần kinh đệm (Neuroglia):** Số lượng nhiều gấp nhiều lần neuron, không dẫn truyền xung động nhưng có nhiệm vụ nâng đỡ, bảo vệ, cách điện (tạo bao Myelin) và nuôi dưỡng neuron.`
-      },
-      {
-        title: '4. Chất xám và Chất trắng',
-        content: `* **Chất xám (Gray matter):** Tập trung các thân neuron, sợi nhánh và các khớp thần kinh (synapse). Là nơi xử lý thông tin. Ở não, chất xám nằm ngoài (vỏ não), ở tủy sống, chất xám nằm trong (hình chữ H).
-* **Chất trắng (White matter):** Tập trung các sợi trục có bao myelin bao bọc (giúp chất trắng có màu sáng). Đảm nhận vai trò dẫn truyền thông tin liên lạc giữa các vùng thần kinh.`
-      },
-      {
-        title: '5. Cung phản xạ (Reflex Arc)',
-        content: `Phản xạ là phản ứng tự động của cơ thể đáp ứng lại kích thích. Cung phản xạ là đường đi của xung động thần kinh để thực hiện một phản xạ, gồm 5 thành phần bắt buộc:
-        
-1.  **Bộ phận thụ cảm (Receptor):** Nhận kích thích (ví dụ: da cảm nhận nhiệt độ nóng).
-2.  **Đường hướng tâm (Nơron cảm giác):** Dẫn truyền xung thần kinh về trung ương.
-3.  **Trung ương thần kinh (não/tủy):** Xử lý thông tin và đưa ra quyết định.
-4.  **Đường ly tâm (Nơron vận động):** Truyền mệnh lệnh từ trung ương ra ngoại vi.
-5.  **Cơ quan đáp ứng (Cơ/Tuyến):** Thực hiện động tác (co cơ rút tay lại).`
-      },
-      {
-        title: '6. Màng não và Dịch não tủy',
-        content: `* **Màng não (Meninges):** Gồm 3 lớp bọc quanh não và tủy sống:
-    1.  *Màng cứng (Dura mater)*: Ngoài cùng, dày, dai, áp sát xương sọ để bảo vệ cơ học.
-    2.  *Màng nhện (Arachnoid mater)*: Ở giữa, mỏng như màng nhện, tạo ra các khoang.
-    3.  *Màng mềm / Màng nuôi (Pia mater)*: Lớp trong cùng, rất mỏng, áp sát vào nhu mô não, chứa nhiều mạch máu nuôi dưỡng.
-* **Dịch não tủy (CSF):** Nằm trong khoang dưới nhện (giữa màng nhện và màng mềm) và hệ thống não thất. Chức năng chính: Giảm chấn động bảo vệ não, nâng đỡ não lơ lửng, cung cấp dưỡng chất và loại bỏ chất thải chuyển hóa.`
-      },
-      {
-        title: '7. Hệ thần kinh thực vật',
-        content: `Điều hòa hoạt động cơ quan nội tạng:
-        
-* **Hệ Giao cảm (Sympathetic - "Fight or Flight"):** Kích hoạt khi cơ thể gặp nguy hiểm, stress, cần hoạt động cường độ cao. Tác dụng: Giãn đồng tử, tăng nhịp tim, giãn phế quản, giảm nhu động ruột, tăng tiết mồ hôi.
-* **Hệ Đối giao cảm (Parasympathetic - "Rest and Digest"):** Hoạt động ưu thế khi cơ thể nghỉ ngơi, thư giãn. Tác dụng: Co đồng tử, giảm nhịp tim, co phế quản, tăng cường nhu động ruột và hoạt động tiêu hóa.`
-      }
-    ]
-  },
-  [THEMES.VASCULAR]: {
-    title: 'Hệ Mạch Máu (Vascular System)',
-    sections: [
-      {
-        title: '1. Đại cương',
-        content: `Hệ mạch máu cùng với tim tạo thành hệ thống tuần hoàn khép kín, chịu trách nhiệm lưu thông máu liên tục để cung cấp các chất cần thiết cho các tế bào hoạt động và thu hồi các sản phẩm thải của chuyển hóa.`
-      },
-      {
-        title: '2. Các loại mạch máu',
-        content: `Hệ mạch được chia thành 3 loại chính:
-        
-1.  **Động mạch (Arteries):** Dẫn máu đi từ tim đến các cơ quan. Thành động mạch dày, giàu cơ trơn và sợi đàn hồi để chịu được áp lực bơm máu cao của tim.
-2.  **Tĩnh mạch (Veins):** Dẫn máu từ các cơ quan trở về tim. Thành tĩnh mạch mỏng hơn động mạch, lòng mạch rộng hơn. Đặc biệt các tĩnh mạch chi dưới có các **van một chiều** giúp ngăn dòng máu chảy ngược do trọng lực.
-3.  **Mao mạch (Capillaries):** Hệ thống mạch nhỏ nhất, nối giữa tiểu động mạch và tiểu tĩnh mạch. Thành mao mạch cực mỏng (chỉ gồm 1 lớp tế bào nội mô), là nơi duy nhất diễn ra sự trao đổi chất, oxy và khí cacbonic giữa máu và tế bào.`
-      },
-      {
-        title: '3. Cấu tạo thành mạch',
-        content: `Thành của động mạch và tĩnh mạch lớn gồm 3 lớp đồng tâm:
-        
-* **Áo trong (Tunica intima):** Lớp nội mô trong cùng, nhẵn bóng để dòng máu lưu thông trơn tru.
-* **Áo giữa (Tunica media):** Lớp cơ trơn và sợi đàn hồi co giãn giúp điều hòa huyết áp và phân phối máu. Lớp này ở động mạch dày hơn tĩnh mạch rất nhiều.
-* **Áo ngoài (Tunica adventitia):** Lớp mô liên kết xơ dai giúp cố định mạch máu vào các cấu trúc xung quanh.`
-      },
-      {
-        title: '4. Bảng so sánh Động mạch và Tĩnh mạch',
-        content: `| Đặc điểm | Động mạch | Tĩnh mạch |
-| :--- | :--- | :--- |
-| **Hướng dòng máu** | Từ tim đi ra ngoại vi | Từ ngoại vi trở về tim |
-| **Thành mạch** | Dày, đàn hồi tốt | Mỏng, ít đàn hồi hơn |
-| **Lòng mạch** | Hẹp tròn | Rộng xẹp |
-| **Van tĩnh mạch** | Không có | Có ở các tĩnh mạch sâu chi dưới |
-| **Áp lực máu** | Rất cao | Thấp, gần bằng 0 khi về tim |
-| **Tính chất máu** | Thường là máu đỏ tươi (nhiều $O_2$)* | Thường là máu đỏ sẫm (nhiều $CO_2$)* |
-
-*\*Ngoại lệ quan trọng: Động mạch phổi mang máu nghèo oxy lên phổi, Tĩnh mạch phổi mang máu giàu oxy về tim.*`
-      },
-      {
-        title: '5. Các vòng tuần hoàn',
-        content: `Máu tuần hoàn trong cơ thể qua hai vòng tuần hoàn lớn nhỏ nối tiếp nhau:
-        
-* **Vòng tuần hoàn lớn (Tuần hoàn hệ thống):**
-    * *Đường đi*: Tâm thất trái $\rightarrow$ Động mạch chủ $\rightarrow$ Các mao mạch cơ quan (trao đổi chất) $\rightarrow$ Tĩnh mạch chủ trên & dưới $\rightarrow$ Tâm nhĩ phải.
-    * *Nhiệm vụ*: Đưa máu giàu oxy và chất dinh dưỡng đi nuôi toàn bộ cơ thể.
-* **Vòng tuần hoàn nhỏ (Tuần hoàn phổi):**
-    * *Đường đi*: Tâm thất phải $\rightarrow$ Động mạch phổi $\rightarrow$ Mao mạch phổi (thải $CO_2$, nhận $O_2$) $\rightarrow$ 4 tĩnh mạch phổi $\rightarrow$ Tâm nhĩ trái.
-    * *Nhiệm vụ*: Thực hiện trao đổi khí tại phế nang.`
-      },
-      {
-        title: '6. Hệ bạch huyết (Lymphatic System)',
-        content: `Là hệ thống phụ trợ của hệ tuần hoàn mạch máu:
-        
-* **Cấu tạo:** Mao mạch bạch huyết, mạch bạch huyết, hạch bạch huyết (trạm lọc miễn dịch), tuyến ức, lách.
-* **Chức năng:** Dẫn lưu lượng dịch kẽ dư thừa từ các mô trở lại tuần hoàn máu, hấp thu lipid (chất béo) ở ruột non thông qua các mạch bạch huyết trung tâm (chữa dưỡng chấp), và đóng vai trò phòng ngự, tạo đáp ứng miễn dịch bảo vệ cơ thể.`
-      }
-    ]
-  },
-  [THEMES.SYSTEMS]: {
-    title: 'Các Hệ Cơ Quan (Organ Systems)',
-    sections: [
-      {
-        title: 'Tổng quan các hệ cơ quan',
-        content: `Cơ thể người là một khối thống nhất được cấu tạo từ **11 hệ cơ quan** hoạt động phối hợp đồng bộ để duy trì sự sống:
-        
-1.  **Hệ da (Integumentary):** Gồm da, lông, tóc, móng, các tuyến da. Bảo vệ cơ thể, cảm giác, điều hòa thân nhiệt.
-2.  **Hệ xương (Skeletal):** Khung nâng đỡ, bảo vệ tạng, tạo máu.
-3.  **Hệ cơ (Muscular):** Tạo lực chuyển động, sinh nhiệt lượng duy trì thân nhiệt.
-4.  **Hệ thần kinh (Nervous):** Thu nhận, xử lý thông tin, điều khiển nhanh các hoạt động cơ thể.
-5.  **Hệ nội tiết (Endocrine):** Các tuyến tiết hormone điều hòa chuyển hóa cơ thể lâu dài.
-6.  **Hệ tim mạch (Cardiovascular):** Vận chuyển máu chứa oxy, dinh dưỡng, hormone đi khắp cơ thể.
-7.  **Hệ bạch huyết & Miễn dịch (Lymphatic & Immune):** Bảo vệ cơ thể khỏi tác nhân gây bệnh, lọc dịch kẽ.
-8.  **Hệ hô hấp (Respiratory):** Trao đổi khí ($O_2$ và $CO_2$) giữa máu và môi trường ngoài.
-9.  **Hệ tiêu hóa (Digestive):** Biến đổi thức ăn thành chất dinh dưỡng hấp thu được, loại bỏ chất bã.
-10. **Hệ tiết niệu (Urinary):** Thận lọc máu tạo nước tiểu, thải chất độc nitơ, điều hòa điện giải và huyết áp.
-11. **Hệ sinh dục (Reproductive):** Sản sinh giao tử (tinh trùng/trứng), hormone sinh dục để duy trì nòi giống.`
-      }
-    ]
-  }
-};
-
-const QUESTIONS = [
-  {
-    id: 1,
-    theme: THEMES.SKELETON,
-    type: 'four_choice',
-    question: 'Bộ xương của một người trưởng thành bình thường gồm bao nhiêu xương?',
-    options: ['126 xương', '80 xương', '206 xương', '300 xương'],
-    answer: '206 xương',
-    explanation: {
-      correct: 'Người trưởng thành có 206 xương riêng biệt liên kết với nhau.',
-      incorrect: '80 xương là số lượng của xương trục. 126 xương là số lượng của xương phụ. 300 xương là số lượng tương đối ở trẻ sơ sinh trước khi các xương hợp nhất.',
-      tip: 'Ghi nhớ số 206 bằng cách liên tưởng: 2 (đai chi) + 0 + 6 (lục - lộc) -> Bộ xương mang lại tài lộc vận động cho 2 chi.',
-      clinical: 'Ở trẻ em, số lượng xương nhiều hơn (khoảng 270-300 xương) vì nhiều xương nhỏ chưa hóa cốt và hợp nhất hoàn toàn (ví dụ các xương sọ, xương chậu).'
-    }
-  },
-  {
-    id: 2,
-    theme: THEMES.SKELETON,
-    type: 'image_id',
-    question: 'Hãy xác định cấu trúc giải phẫu của xương đùi được đánh dấu trong hình dưới đây:',
-    image: 'https://images.unsplash.com/photo-1579684389782-64d84b5e901a?auto=format&fit=crop&q=80&w=400', // Hình xương mô phỏng
-    options: ['Lồi cầu ngoài', 'Cổ xương đùi', 'Chỏm xương đùi', 'Mấu chuyển lớn'],
-    answer: 'Chỏm xương đùi',
-    explanation: {
-      correct: 'Chỏm xương đùi có hình 2/3 hình cầu nhẵn, hướng vào trong và lên trên để khớp với ổ cối xương chậu.',
-      incorrect: 'Cổ xương đùi là phần thắt hẹp nối chỏm với thân xương. Mấu chuyển lớn nằm ở phía ngoài, là mốc sờ được dưới da. Lồi cầu nằm ở đầu dưới xương đùi.',
-      tip: 'Chỏm (Head) luôn là phần tròn nhất ở đầu xương để tiếp khớp xoay tròn chuyển động.',
-      clinical: 'Gãy cổ xương đùi là tai nạn cực kỳ phổ biến ở người già loãng xương do ngã đập mông, gây nguy cơ hoại tử vô mạch chỏm xương đùi do mạch máu nuôi dưỡng đi qua cổ xương bị đứt.'
-    }
-  },
-  {
-    id: 3,
-    theme: THEMES.SKELETON,
-    type: 'true_false',
-    question: 'Đúng hay Sai: "Màng xương (periosteum) bao bọc toàn bộ bề mặt xương kể cả các diện khớp xương."',
-    options: ['Đúng', 'Sai'],
-    answer: 'Sai',
-    explanation: {
-      correct: 'Màng xương bao bọc mặt ngoài xương trừ các diện khớp (nơi được bao bọc bởi sụn khớp nhẵn).',
-      incorrect: 'Nếu màng xương bao cả diện khớp, ma sát khi vận động sẽ làm rách nát màng xương chứa nhiều mạch máu và thần kinh, gây đau đớn dữ dội.',
-      tip: 'Nơi nào có khớp động chạm trực tiếp thì nơi đó có sụn che chở, không có màng xương.',
-      clinical: 'Khi chấn thương bong màng xương sẽ gây đau đớn cực kỳ dữ dội vì màng xương là nơi tập trung mạng lưới sợi thần kinh cảm giác đau dày đặc nhất của xương.'
-    }
-  },
-  {
-    id: 4,
-    theme: THEMES.MUSCLE,
-    type: 'match',
-    question: 'Hãy ghép nối loại mô cơ với đặc điểm sinh lý phù hợp:',
-    pairs: [
-      { key: 'Cơ vân', value: 'Hoạt động theo ý muốn, có vân ngang' },
-      { key: 'Cơ trơn', value: 'Thành tạng rỗng, không có vân ngang, tự chủ' },
-      { key: 'Cơ tim', value: 'Chỉ có ở tim, có vân ngang, hoạt động tự động' }
-    ],
-    explanation: {
-      correct: 'Sự phân loại này dựa trên cả hình thái giải phẫu học (vân ngang) và chức năng sinh lý (ý muốn).',
-      incorrect: 'Nhầm lẫn đặc tính tự động của cơ tim sang cơ vân sẽ dẫn đến rối loạn điều khiển vận động.',
-      tip: 'Cơ vân bám vào xương (vân - xương) nên ta bảo đi là đi, chạy là chạy. Cơ trơn nội tạng tự làm việc âm thầm.',
-      clinical: 'Thuốc giãn cơ trơn (như No-spa) được dùng để giảm cơn đau quặn thận, đau dạ dày do co thắt cơ trơn tạng rỗng.'
-    }
-  },
-  {
-    id: 5,
-    theme: THEMES.NERVOUS,
-    type: 'fill_blank',
-    question: 'Đơn vị cấu tạo và chức năng cơ bản của hệ thần kinh là gì? (Nhập từ tiếng Việt không dấu hoặc có dấu)',
-    answer: 'neuron', // Chấp nhận neuron hoặc nơron
-    acceptableAnswers: ['neuron', 'nơron', 'nơ-ron'],
-    explanation: {
-      correct: 'Neuron (nơron) là tế bào chuyên biệt hóa cao, có chức năng tiếp nhận, xử lý và dẫn truyền xung động thần kinh.',
-      incorrect: 'Tế bào thần kinh đệm chỉ có chức năng nâng đỡ, bảo vệ và dinh dưỡng chứ không phát xung động.',
-      tip: 'Nhớ từ gốc tiếng Anh "Neuron" để dễ đọc tài liệu quốc tế.',
-      clinical: 'Sự thoái hóa của các neuron sản xuất Dopamin tại vùng chất đen của não là nguyên nhân chính gây ra bệnh Parkinson.'
-    }
-  },
-  {
-    id: 6,
-    theme: THEMES.VASCULAR,
-    type: 'four_choice',
-    question: 'Động mạch nào sau đây mang máu nghèo Oxy (màu đỏ sẫm)?',
-    options: ['Động mạch chủ', 'Động mạch phổi', 'Động mạch cảnh', 'Động mạch đùi'],
-    answer: 'Động mạch phổi',
-    explanation: {
-      correct: 'Động mạch phổi dẫn máu nghèo oxy từ tâm thất phải lên phổi để thực hiện quá trình trao đổi khí thải CO2 và nhận O2.',
-      incorrect: 'Động mạch chủ, cảnh, đùi thuộc hệ tuần hoàn lớn, mang máu giàu oxy từ thất trái đi nuôi các cơ quan.',
-      tip: 'Động mạch = Đi ra khỏi tim. Tĩnh mạch = Đi về tim. Không quy chụp Động mạch luôn chứa máu đỏ tươi!',
-      clinical: 'Thuyên tắc động mạch phổi (PE) do huyết khối từ tĩnh mạch sâu chi dưới di chuyển lên là một cấp cứu y khoa cực kỳ nguy hiểm, gây suy hô hấp cấp.'
-    }
-  }
-];
-
-// ==========================================
-// 2. THUẬT TOÁN SPACED REPETITION (SM-2)
-// ==========================================
-const calculateSM2 = (quality, repetitions, interval, easeFactor) => {
-  let nextRepetitions = 0;
-  let nextInterval = 1;
-  let nextEaseFactor = easeFactor;
-
-  if (quality >= 3) {
-    if (repetitions === 0) {
-      nextInterval = 1;
-    } else if (repetitions === 1) {
-      nextInterval = 3; // Ôn sau 3 ngày
-    } else {
-      nextInterval = Math.round(interval * easeFactor);
-    }
-    nextRepetitions = repetitions + 1;
-  } else {
-    nextRepetitions = 0;
-    nextInterval = 1; // Học lại ngay ngày mai
-  }
-
-  nextEaseFactor = easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
-  if (nextEaseFactor < 1.3) nextEaseFactor = 1.3;
-
-  return {
-    repetitions: nextRepetitions,
-    interval: nextInterval,
-    easeFactor: nextEaseFactor,
-    nextDueDate: Date.now() + nextInterval * 24 * 60 * 60 * 1000
-  };
-};
-
-export default function App() {
-  // --- STATE QUẢN LÝ APP ---
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('anatomy_dark_mode');
-    return saved === 'true';
-  });
-  const [activeTab, setActiveTab] = useState('dashboard'); // dashboard | theory | quiz | exam | anki | review
-  const [activeTheme, setActiveTheme] = useState(THEMES.SKELETON);
-
-  // --- STATE LƯU TRỮ TIẾN ĐỘ & ÔN TẬP ---
-  const [userProgress, setUserProgress] = useState(() => {
-    const saved = localStorage.getItem('anatomy_progress');
-    return saved ? JSON.parse(saved) : {
-      history: [], // { date, score, total, type }
-      incorrectQuestions: {}, // quizId -> { question, count, nextDueDate, reps, interval, ef }
-      ankiCards: [], // { id, title, image, occlusions: [{ x, y, w, h, label }], learnedStates: {} }
-    };
-  });
-
-  useEffect(() => {
-    localStorage.setItem('anatomy_progress', JSON.stringify(userProgress));
-  }, [userProgress]);
-
-  useEffect(() => {
-    localStorage.setItem('anatomy_dark_mode', darkMode);
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
-
-  // Thêm một số thẻ Anki mẫu ban đầu nếu rỗng
-  useEffect(() => {
-    if (userProgress.ankiCards.length === 0) {
-      const defaultCards = [
-        {
-          id: 'default-1',
-          title: 'Giải phẫu Xương sọ bên (Lateral Skull)',
-          image: 'https://images.unsplash.com/photo-1579684389782-64d84b5e901a?auto=format&fit=crop&q=80&w=600',
-          occlusions: [
-            { id: 'occ-1', x: 20, y: 30, w: 25, h: 10, label: 'Xương trán (Frontal bone)' },
-            { id: 'occ-2', x: 55, y: 25, w: 25, h: 10, label: 'Xương đỉnh (Parietal bone)' },
-            { id: 'occ-3', x: 60, y: 55, w: 25, h: 10, label: 'Xương thái dương (Temporal bone)' }
-          ],
-          history: {}
-        }
-      ];
-      setUserProgress(prev => ({ ...prev, ankiCards: defaultCards }));
-    }
-  }, []);
-
-  return (
-    <div className={`min-h-screen font-sans transition-colors duration-300 ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
-      
-      {/* HEADER & NAVIGATION */}
-      <header className={`sticky top-0 z-40 border-b backdrop-blur-md ${darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white/80 border-slate-200'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="p-2 bg-rose-600 text-white rounded-lg font-bold shadow-md shadow-rose-600/30">💀</span>
-            <div>
-              <h1 className="font-bold text-lg sm:text-xl tracking-tight">ANATOMY PRO</h1>
-              <p className="text-xs text-rose-500 font-semibold tracking-wider uppercase">Y Khoa Giải Phẫu Đại Cương</p>
-            </div>
-          </div>
-
-          {/* Nav Desktop */}
-          <nav className="hidden md:flex space-x-1">
-            {[
-              { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-              { id: 'theory', label: 'Học Chủ Đề', icon: '📖' },
-              { id: 'quiz', label: 'Trắc Nghiệm', icon: '✍️' },
-              { id: 'exam', label: 'Thi Thử', icon: '⏱️' },
-              { id: 'anki', label: 'Anki Anatomy', icon: '🎴' },
-              { id: 'review', label: 'Hộp Ôn Tập', icon: '🔄' }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
-                  activeTab === tab.id
-                    ? 'bg-rose-600 text-white shadow-md'
-                    : 'hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
-                }`}
-              >
-                <span>{tab.icon}</span>
-                <span>{tab.label}</span>
-              </button>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-2">
-            {/* Dark mode toggle */}
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-lg"
-              title="Đổi giao diện Sáng/Tối"
-            >
-              {darkMode ? '☀️' : '🌙'}
-            </button>
-          </div>
-        </div>
-        
-        {/* Navigation Mobile */}
-        <div className="md:hidden flex overflow-x-auto py-2 px-4 border-t border-slate-200 dark:border-slate-800 gap-1 scrollbar-none">
-          {[
-            { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-            { id: 'theory', label: 'Lý Thuyết', icon: '📖' },
-            { id: 'quiz', label: 'Trắc Nghiệm', icon: '✍️' },
-            { id: 'exam', label: 'Thi', icon: '⏱️' },
-            { id: 'anki', label: 'Anki', icon: '🎴' },
-            { id: 'review', label: 'Ôn Tập', icon: '🔄' }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1 ${
-                activeTab === tab.id
-                  ? 'bg-rose-600 text-white'
-                  : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-              }`}
-            >
-              <span>{tab.icon}</span>
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </div>
-      </header>
-
-      {/* CHƯƠNG TRÌNH CHÍNH */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {activeTab === 'dashboard' && <DashboardView userProgress={userProgress} setActiveTab={setActiveTab} />}
-        {activeTab === 'theory' && <TheoryView activeTheme={activeTheme} setActiveTheme={setActiveTheme} />}
-        {activeTab === 'quiz' && (
-          <QuizView 
-            userProgress={userProgress} 
-            setUserProgress={setUserProgress} 
-          />
-        )}
-        {activeTab === 'exam' && (
-          <ExamView 
-            userProgress={userProgress} 
-            setUserProgress={setUserProgress} 
-          />
-        )}
-        {activeTab === 'anki' && (
-          <AnkiView 
-            userProgress={userProgress} 
-            setUserProgress={setUserProgress} 
-          />
-        )}
-        {activeTab === 'review' && (
-          <ReviewBoxView 
-            userProgress={userProgress} 
-            setUserProgress={setUserProgress} 
-          />
-        )}
-      </main>
-
-      <footer className="border-t border-slate-200 dark:border-slate-800 mt-20 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
-        <p>© 2026 Anatomy Pro. Giải pháp học Giải phẫu Y khoa chuyên nghiệp.</p>
-        <p className="mt-1 text-xs">Phát triển chuyên sâu dựa trên thuật toán Spaced Repetition (SM-2).</p>
-      </footer>
-    </div>
-  );
-}
-
-// ==========================================
-// 3. DASHBOARD VIEW (BẢNG ĐIỀU KHIỂN THEO DÕI TIẾN ĐỘ)
-// ==========================================
-function DashboardView({ userProgress, setActiveTab }) {
-  const [weeklyData, setWeeklyData] = useState([]);
-
-  useEffect(() => {
-    // Tổng hợp số câu sai cần ôn tập ngay hôm nay
-    const now = Date.now();
-    const reviewNeeded = Object.values(userProgress.incorrectQuestions).filter(
-      q => q.nextDueDate && q.nextDueDate <= now
-    ).length;
-
-    // Phân tích điểm thi thử gần đây
-    const examAttempts = userProgress.history.filter(h => h.type === 'exam');
-    const avgExamScore = examAttempts.length > 0 
-      ? Math.round((examAttempts.reduce((acc, curr) => acc + (curr.score / curr.total), 0) / examAttempts.length) * 100)
-      : 0;
-
-    setWeeklyData({
-      reviewNeeded,
-      totalExamDone: examAttempts.length,
-      avgExamScore,
-      totalAnki: userProgress.ankiCards.length
-    });
-  }, [userProgress]);
-
-  // Biểu đồ thống kê tự vẽ đơn giản bằng SVG/Tailwind
-  const incorrectCount = Object.keys(userProgress.incorrectQuestions).length;
-
-  return (
-    <div className="space-y-8 animate-fadeIn">
-      {/* Banner Chào Mừng */}
-      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-rose-600 via-pink-600 to-rose-700 text-white p-8 shadow-xl">
-        <div className="relative z-10 md:max-w-2xl">
-          <span className="bg-rose-500/30 text-rose-100 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">Hành trình y khoa</span>
-          <h2 className="text-3xl font-extrabold mt-4 mb-2 leading-tight">Chào mừng bạn tới phòng thí nghiệm Giải Phẫu Đại Cương</h2>
-          <p className="text-rose-100 mb-6 text-sm sm:text-base leading-relaxed">
-            Học giải phẫu không chỉ là ghi nhớ, đó là sự thấu hiểu kiến trúc kỳ diệu của cơ thể con người. Hãy bắt đầu học ngay hôm nay với thuật toán ghi nhớ thông minh!
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <button onClick={() => setActiveTab('theory')} className="bg-white text-rose-700 font-semibold px-5 py-2.5 rounded-xl shadow-md hover:bg-slate-100 transition-all text-sm">
-              📚 Học Lý Thuyết
-            </button>
-            <button onClick={() => setActiveTab('anki')} className="bg-rose-500 hover:bg-rose-400 text-white font-semibold px-5 py-2.5 rounded-xl transition-all text-sm border border-rose-400">
-              🎴 Thử Anki Anatomy
-            </button>
-          </div>
-        </div>
-        <div className="absolute right-0 bottom-0 top-0 opacity-10 md:opacity-20 pointer-events-none flex items-center justify-center p-10">
-          <span className="text-[12rem] select-none">💀</span>
-        </div>
-      </div>
-
-      {/* Thống Kê Số Liệu Nhanh */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
-          <span className="text-2xl mb-2">🔄</span>
-          <div>
-            <h4 className="text-sm font-semibold text-slate-500 dark:text-slate-400">Cần Ôn Tập Ngay</h4>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-3xl font-bold text-rose-600">{weeklyData.reviewNeeded || 0}</span>
-              <span className="text-xs text-slate-400">câu hỏi</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
-          <span className="text-2xl mb-2">📓</span>
-          <div>
-            <h4 className="text-sm font-semibold text-slate-500 dark:text-slate-400">Sổ Tay Câu Sai</h4>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-3xl font-bold text-amber-500">{incorrectCount}</span>
-              <span className="text-xs text-slate-400">tổng số câu lưu</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
-          <span className="text-2xl mb-2">🎓</span>
-          <div>
-            <h4 className="text-sm font-semibold text-slate-500 dark:text-slate-400">Thi Thử Gần Đây</h4>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-3xl font-bold text-blue-600">{weeklyData.avgExamScore || 0}%</span>
-              <span className="text-xs text-slate-400">điểm TB ({weeklyData.totalExamDone || 0} lượt)</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
-          <span className="text-2xl mb-2">🎴</span>
-          <div>
-            <h4 className="text-sm font-semibold text-slate-500 dark:text-slate-400">Bộ Thẻ Anki</h4>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-3xl font-bold text-emerald-500">{weeklyData.totalAnki || 0}</span>
-              <span className="text-xs text-slate-400">ảnh giải phẫu</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Dashboard Chi Tiết: Nhật Ký Học Tập & Sức Khỏe */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
-          <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-            <span>📈</span> Lịch Sử Luyện Tập Gần Đây
-          </h3>
-          {userProgress.history.length === 0 ? (
-            <div className="text-center py-10 text-slate-400 text-sm">
-              Bạn chưa tham gia bài thi hoặc trắc nghiệm nào. Hãy bắt đầu luyện tập để biểu đồ xuất hiện!
-            </div>
-          ) : (
-            <div className="space-y-4 max-h-80 overflow-y-auto">
-              {userProgress.history.slice().reverse().map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 text-sm">
-                  <div>
-                    <p className="font-bold">{item.type === 'exam' ? '📝 Thi thử giải phẫu' : '✍️ Trắc nghiệm tự luyện'}</p>
-                    <span className="text-xs text-slate-400">{new Date(item.date).toLocaleDateString()} - {new Date(item.date).toLocaleTimeString()}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-bold text-rose-500 text-base">{item.score}/{item.total}</span>
-                    <p className="text-xs text-slate-400">Đúng {Math.round((item.score/item.total)*100)}%</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Cẩm nang học tập Giải Phẫu */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-4">
-          <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-            <span>💡</span> Mẹo Học Giải Phẫu Thần Tốc
-          </h3>
-          <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
-            <li className="flex gap-2">
-              <span className="text-rose-500">✔</span>
-              <span><strong>Không chỉ học vẹt:</strong> Liên hệ cấu trúc với chức năng sinh lý của chúng để nhớ lâu hơn.</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="text-rose-500">✔</span>
-              <span><strong>Tự vẽ/Che ảnh:</strong> Dùng chế độ <strong>Anki Anatomy</strong> tự che nhãn cấu trúc để tăng phản xạ nhận diện tức thì trong phòng thi.</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="text-rose-500">✔</span>
-              <span><strong>Bám sát lâm sàng:</strong> Tìm hiểu tại sao gãy xương đùi gây tử vong cao, hay tại sao đau ruột thừa lại bắt đầu đau từ rốn.</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="text-rose-500">✔</span>
-              <span><strong>Spaced Repetition:</strong> Quay lại ôn tập các câu bị làm sai vào đúng thời điểm do AI gợi ý.</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ==========================================
-// 4. THEORY VIEW (HỌC CHỦ ĐỀ LÝ THUYẾT CHI TIẾT)
-// ==========================================
-function TheoryView({ activeTheme, setActiveTheme }) {
-  const currentTheory = THEORY_DATA[activeTheme];
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 animate-fadeIn">
-      {/* Sidebar chọn chủ đề */}
-      <div className="space-y-2">
-        <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4">Danh Mục Lý Thuyết</h3>
-        {[
-          { id: THEMES.SKELETON, label: '🦴 Hệ Xương (Skeleton)', count: '8 chương' },
-          { id: THEMES.MUSCLE, label: '💪 Hệ Cơ (Muscles)', count: '9 chương' },
-          { id: THEMES.NERVOUS, label: '🧠 Hệ Thần Kinh (Nerves)', count: '7 chương' },
-          { id: THEMES.VASCULAR, label: '🩸 Hệ Mạch Máu (Vessels)', count: '6 chương' },
-          { id: THEMES.SYSTEMS, label: '🧬 Các Hệ Cơ Quan (Systems)', count: '11 hệ' }
-        ].map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveTheme(item.id)}
-            className={`w-full text-left p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between ${
-              activeTheme === item.id
-                ? 'bg-rose-50 dark:bg-rose-950/30 border-rose-500 text-rose-700 dark:text-rose-400 font-bold shadow-sm'
-                : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
-            }`}
-          >
-            <span className="text-sm">{item.label}</span>
-            <span className="text-xs text-slate-400 font-normal mt-1">{item.count}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Nội dung lý thuyết */}
-      <div className="lg:col-span-3 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 space-y-8">
-        <div>
-          <span className="text-xs text-rose-500 font-bold tracking-wider uppercase">Chuyên đề bài học</span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold mt-1">{currentTheory.title}</h2>
-        </div>
-
-        <div className="space-y-8 divide-y divide-slate-100 dark:divide-slate-800">
-          {currentTheory.sections.map((section, idx) => (
-            <div key={idx} className={idx > 0 ? "pt-8" : ""}>
-              <h3 className="text-xl font-bold text-rose-600 dark:text-rose-400 mb-4">{section.title}</h3>
-              <div className="prose prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-4">
-                {section.content.split('\n\n').map((paragraph, pIdx) => {
-                  // Xử lý định dạng Markdown đơn giản (bôi đậm, list, in nghiêng)
-                  return (
-                    <div key={pIdx}>
-                      {paragraph.startsWith('*') || paragraph.startsWith('-') ? (
-                        <ul className="list-disc pl-5 space-y-1 my-2">
-                          {paragraph.split('\n').map((line, lIdx) => {
-                            const cleanText = line.replace(/^[\s*-]+/, '');
-                            return <li key={lIdx} dangerouslySetInnerHTML={{ __html: parseMarkdownInline(cleanText) }} />;
-                          })}
-                        </ul>
-                      ) : paragraph.startsWith('|') ? (
-                        // Render bảng đơn giản
-                        <div className="overflow-x-auto my-4">
-                          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-                            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                              {paragraph.split('\n').map((row, rIdx) => {
-                                const cols = row.split('|').filter(c => c.trim() !== '');
-                                return (
-                                  <tr key={rIdx} className={rIdx === 0 ? "bg-slate-100 dark:bg-slate-800 font-bold" : ""}>
-                                    {cols.map((col, cIdx) => (
-                                      <td key={cIdx} className="px-4 py-2 text-sm" dangerouslySetInnerHTML={{ __html: parseMarkdownInline(col.trim()) }} />
-                                    ))}
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
-                      ) : (
-                        <p className="leading-relaxed" dangerouslySetInnerHTML={{ __html: parseMarkdownInline(paragraph) }} />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Hàm hỗ trợ parse nhanh Markdown inline (Bold **, Italic *, LaTeX đơn giản $ $)
-function parseMarkdownInline(text) {
-  let html = text;
-  // Bôi đậm **text**
-  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  // In nghiêng *text*
-  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-  // LaTeX $formula$
-  html = html.replace(/\$(.*?)\$/g, '<code class="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-rose-500 font-mono">$1</code>');
-  return html;
-}
-
-// ==========================================
-// 5. QUIZ VIEW (TRẮC NGHIỆM ĐA DẠNG CÓ FEEDBACK CHUYÊN SÂU)
-// ==========================================
-function QuizView({ userProgress, setUserProgress }) {
-  const [selectedTheme, setSelectedTheme] = useState('ALL');
-  const [activeQuestions, setActiveQuestions] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [userAnswer, setUserAnswer] = useState('');
-  const [matchState, setMatchState] = useState({}); // dùng cho ghép cặp
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [score, setScore] = useState(0);
-
-  // Khởi tạo bộ câu hỏi theo theme
-  useEffect(() => {
-    let filtered = QUESTIONS;
-    if (selectedTheme !== 'ALL') {
-      filtered = QUESTIONS.filter(q => q.theme === selectedTheme);
-    }
-    // Tráo đổi ngẫu nhiên câu hỏi để tăng tính thực tế
-    setActiveQuestions([...filtered].sort(() => Math.random() - 0.5));
-    setCurrentIndex(0);
-    setIsSubmitted(false);
-    setUserAnswer('');
-    setMatchState({});
-    setScore(0);
-  }, [selectedTheme]);
-
-  const handleNext = () => {
-    if (currentIndex + 1 < activeQuestions.length) {
-      setCurrentIndex(currentIndex + 1);
-      setUserAnswer('');
-      setMatchState({});
-      setIsSubmitted(false);
-    } else {
-      // Hoàn thành bộ câu trắc nghiệm nhanh
-      setUserProgress(prev => ({
-        ...prev,
-        history: [
-          ...prev.history,
-          {
-            date: Date.now(),
-            score: score,
-            total: activeQuestions.length,
-            type: 'quiz'
-          }
-        ]
-      }));
-      // Reset về trạng thái hoàn tất
-      setIsSubmitted(true);
-    }
-  };
-
-  const handleAnswerSubmit = (ans) => {
-    if (isSubmitted) return;
-
-    const currentQ = activeQuestions[currentIndex];
-    let isCorrect = false;
-
-    if (currentQ.type === 'four_choice' || currentQ.type === 'image_id' || currentQ.type === 'true_false') {
-      setUserAnswer(ans);
-      isCorrect = ans === currentQ.answer;
-    } else if (currentQ.type === 'fill_blank') {
-      setUserAnswer(ans);
-      const cleanAns = ans.trim().toLowerCase();
-      isCorrect = cleanAns === currentQ.answer.toLowerCase() || 
-                  (currentQ.acceptableAnswers && currentQ.acceptableAnswers.some(a => a.toLowerCase() === cleanAns));
-    } else if (currentQ.type === 'match') {
-      // Ghép cặp, ans là đối tượng ghép cặp hoàn chỉnh
-      setMatchState(ans);
-      // Kiểm tra tất cả các cặp đã đúng chưa
-      isCorrect = Object.entries(ans).every(([key, value]) => {
-        const pair = currentQ.pairs.find(p => p.key === key);
-        return pair && pair.value === value;
-      });
-    }
-
-    if (isCorrect) {
-      setScore(s => s + 1);
-    } else {
-      // LƯU CÂU SAI VÀO SPACED REPETITION (SM-2)
-      setUserProgress(prev => {
-        const nextIncorrect = { ...prev.incorrectQuestions };
-        const savedQ = nextIncorrect[currentQ.id] || {
-          question: currentQ,
-          count: 0,
-          repetitions: 0,
-          interval: 1,
-          easeFactor: 2.5
-        };
-
-        // Khi trả lời sai, chất lượng được đánh giá là 1 (Quá tệ, cần học lại)
-        const sm2Result = calculateSM2(1, savedQ.repetitions, savedQ.interval, savedQ.easeFactor);
-
-        nextIncorrect[currentQ.id] = {
-          ...savedQ,
-          count: savedQ.count + 1,
-          ...sm2Result
-        };
-
-        return { ...prev, incorrectQuestions: nextIncorrect };
-      });
-    }
-
-    setIsSubmitted(true);
-  };
-
-  if (activeQuestions.length === 0) {
-    return (
-      <div className="text-center py-20">
-        <p className="text-slate-400">Không tìm thấy câu hỏi nào phù hợp với chủ đề đã chọn.</p>
-      </div>
-    );
-  }
-
-  const currentQuestion = activeQuestions[currentIndex];
-
-  return (
-    <div className="max-w-3xl mx-auto space-y-6 animate-fadeIn">
-      {/* Chọn lọc bộ đề */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
-        <span className="font-bold text-sm text-slate-500">Bộ câu trắc nghiệm</span>
-        <select
-          value={selectedTheme}
-          onChange={(e) => setSelectedTheme(e.target.value)}
-          className="bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm px-4 py-2 focus:ring-2 focus:ring-rose-500 font-semibold"
-        >
-          <option value="ALL">🧬 Tất cả chủ đề</option>
-          <option value={THEMES.SKELETON}>🦴 Hệ Xương</option>
-          <option value={THEMES.MUSCLE}>💪 Hệ Cơ</option>
-          <option value={THEMES.NERVOUS}>🧠 Hệ Thần Kinh</option>
-          <option value={THEMES.VASCULAR}>🩸 Hệ Mạch Máu</option>
-          <option value={THEMES.SYSTEMS}>🧬 Các Hệ Cơ Quan</option>
-        </select>
-      </div>
-
-      {/* Tiến độ và điểm số */}
-      <div className="flex items-center justify-between text-xs text-slate-400">
-        <span>Câu hỏi {currentIndex + 1} / {activeQuestions.length}</span>
-        <span>Điểm số: {score} đúng</span>
-      </div>
-
-      {/* Tiến độ dạng thanh ngang */}
-      <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-        <div 
-          className="h-full bg-rose-600 transition-all duration-300"
-          style={{ width: `${((currentIndex + 1) / activeQuestions.length) * 100}%` }}
-        ></div>
-      </div>
-
-      {/* Nội dung câu hỏi */}
-      <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
-        <span className="bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-xs font-bold px-3 py-1 rounded-full uppercase">
-          {currentQuestion.type === 'four_choice' && '4 Lựa Chọn'}
-          {currentQuestion.type === 'image_id' && 'Nhận diện cấu trúc'}
-          {currentQuestion.type === 'true_false' && 'Đúng / Sai'}
-          {currentQuestion.type === 'match' && 'Ghép cặp'}
-          {currentQuestion.type === 'fill_blank' && 'Điền vào chỗ trống'}
-        </span>
-
-        <h3 className="text-lg sm:text-xl font-bold leading-relaxed">{currentQuestion.question}</h3>
-
-        {/* Khối hiển thị hình ảnh nếu có */}
-        {currentQuestion.image && (
-          <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 max-h-72 flex justify-center bg-slate-50 dark:bg-slate-950">
-            <img src={currentQuestion.image} alt="Anatomical schema" className="object-contain max-h-72" />
-          </div>
-        )}
-
-        {/* CÁC KIỂU CÂU HỎI */}
-        <div className="space-y-3">
-          {/* 1. Trắc nghiệm 4 lựa chọn & Nhận diện hình ảnh */}
-          {(currentQuestion.type === 'four_choice' || currentQuestion.type === 'image_id' || currentQuestion.type === 'true_false') && (
-            <div className="grid grid-cols-1 gap-3">
-              {currentQuestion.options.map((opt, idx) => {
-                const isSelected = userAnswer === opt;
-                const isCorrectOpt = opt === currentQuestion.answer;
-                
-                let btnStyle = 'border-slate-200 dark:border-slate-800 hover:border-rose-500';
-                if (isSubmitted) {
-                  if (isCorrectOpt) {
-                    btnStyle = 'bg-emerald-500/10 border-emerald-500 text-emerald-700 dark:text-emerald-400 font-bold';
-                  } else if (isSelected) {
-                    btnStyle = 'bg-rose-500/10 border-rose-500 text-rose-700 dark:text-rose-400';
-                  } else {
-                    btnStyle = 'opacity-50 border-slate-100 dark:border-slate-800';
-                  }
-                } else if (isSelected) {
-                  btnStyle = 'border-rose-500 bg-rose-500/5 ring-2 ring-rose-500/20';
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        medical: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            900: '#134e4a',
+                        }
+                    }
                 }
-
-                return (
-                  <button
-                    key={idx}
-                    disabled={isSubmitted}
-                    onClick={() => handleAnswerSubmit(opt)}
-                    className={`w-full text-left p-4 rounded-2xl border transition-all duration-200 flex items-center justify-between ${btnStyle}`}
-                  >
-                    <span>{opt}</span>
-                    {isSubmitted && isCorrectOpt && <span className="text-emerald-500">✔ Đáp án đúng</span>}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* 2. Ghép cặp (Match) */}
-          {currentQuestion.type === 'match' && (
-            <MatchQuestionWidget 
-              question={currentQuestion} 
-              isSubmitted={isSubmitted}
-              onSubmit={handleAnswerSubmit}
-            />
-          )}
-
-          {/* 3. Điền khuyết */}
-          {currentQuestion.type === 'fill_blank' && (
-            <div>
-              {!isSubmitted ? (
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Nhập câu trả lời của bạn..."
-                    value={userAnswer}
-                    onChange={(e) => setUserAnswer(e.target.value)}
-                    className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none"
-                    onKeyDown={(e) => e.key === 'Enter' && handleAnswerSubmit(userAnswer)}
-                  />
-                  <button
-                    onClick={() => handleAnswerSubmit(userAnswer)}
-                    className="bg-rose-600 hover:bg-rose-500 text-white font-bold px-6 py-3 rounded-2xl transition-all"
-                  >
-                    Gửi
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <div className={`p-4 rounded-2xl border ${
-                    userAnswer.toLowerCase() === currentQuestion.answer.toLowerCase() || (currentQuestion.acceptableAnswers && currentQuestion.acceptableAnswers.some(a => a.toLowerCase() === userAnswer.toLowerCase()))
-                      ? 'bg-emerald-500/10 border-emerald-500 text-emerald-700 dark:text-emerald-400'
-                      : 'bg-rose-500/10 border-rose-500 text-rose-700 dark:text-rose-400'
-                  }`}>
-                    <p className="font-bold text-sm">Câu trả lời của bạn: {userAnswer || '(Trống)'}</p>
-                    <p className="text-xs mt-1">Đáp án chuẩn: <strong className="underline">{currentQuestion.answer}</strong></p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* FEEDBACK CHUYÊN SÂU KHI SAI HOẶC SAU KHI NỘP BÀI */}
-        {isSubmitted && (
-          <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 space-y-6 animate-slideUp">
-            <h4 className="font-bold text-base text-rose-600 dark:text-rose-400 flex items-center gap-2">
-              <span>🩺</span> Giải Thích Chi Tiết Của Giảng Viên
-            </h4>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm leading-relaxed">
-              <div className="bg-emerald-50 dark:bg-emerald-950/20 p-4 rounded-2xl">
-                <h5 className="font-bold text-emerald-700 dark:text-emerald-400 mb-1">Tại sao đáp án này ĐÚNG?</h5>
-                <p className="text-slate-600 dark:text-slate-300">{currentQuestion.explanation.correct}</p>
-              </div>
-
-              <div className="bg-rose-50 dark:bg-rose-950/20 p-4 rounded-2xl">
-                <h5 className="font-bold text-rose-700 dark:text-rose-400 mb-1">Tại sao các lựa chọn khác SAI?</h5>
-                <p className="text-slate-600 dark:text-slate-300">{currentQuestion.explanation.incorrect}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm leading-relaxed">
-              <div className="bg-amber-50 dark:bg-amber-950/20 p-4 rounded-2xl">
-                <h5 className="font-bold text-amber-700 dark:text-amber-400 mb-1">💡 Mẹo Ghi Nhớ Nhanh</h5>
-                <p className="text-slate-600 dark:text-slate-300">{currentQuestion.explanation.tip}</p>
-              </div>
-
-              <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-2xl">
-                <h5 className="font-bold text-blue-700 dark:text-blue-400 mb-1">🏥 Liên Hệ Lâm Sàng</h5>
-                <p className="text-slate-600 dark:text-slate-300">{currentQuestion.explanation.clinical}</p>
-              </div>
-            </div>
-
-            <button
-              onClick={handleNext}
-              className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold py-4 rounded-2xl transition-all shadow-md text-center"
-            >
-              {currentIndex + 1 < activeQuestions.length ? 'Câu Tiếp Theo ➔' : 'Hoàn Thành Đợt Luyện ➔'}
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// Widget xử lý riêng cho câu hỏi dạng Ghép Cặp (Match)
-function MatchQuestionWidget({ question, isSubmitted, onSubmit }) {
-  const [selectedLeft, setSelectedLeft] = useState(null);
-  const [connections, setConnections] = useState({}); // leftKey -> rightValue
-
-  const handleLeftClick = (key) => {
-    if (isSubmitted) return;
-    setSelectedLeft(key);
-  };
-
-  const handleRightClick = (value) => {
-    if (isSubmitted || !selectedLeft) return;
-    setConnections(prev => ({
-      ...prev,
-      [selectedLeft]: value
-    }));
-    setSelectedLeft(null);
-  };
-
-  const handleReset = () => {
-    setConnections({});
-    setSelectedLeft(null);
-  };
-
-  const isAllConnected = Object.keys(connections).length === question.pairs.length;
-
-  return (
-    <div className="space-y-4">
-      <p className="text-xs text-slate-400 italic">Chọn một mục cột bên trái rồi chọn một mục phù hợp cột bên phải để kết nối.</p>
-      
-      <div className="grid grid-cols-2 gap-4">
-        {/* Cột trái */}
-        <div className="space-y-2">
-          {question.pairs.map((p, idx) => (
-            <button
-              key={idx}
-              type="button"
-              disabled={isSubmitted}
-              onClick={() => handleLeftClick(p.key)}
-              className={`w-full text-left p-3 rounded-xl border text-sm font-semibold transition-all ${
-                selectedLeft === p.key
-                  ? 'border-rose-500 bg-rose-500/10'
-                  : connections[p.key]
-                    ? 'border-emerald-500/50 bg-emerald-500/5'
-                    : 'border-slate-200 dark:border-slate-800'
-              }`}
-            >
-              {p.key}
-              {connections[p.key] && (
-                <span className="block text-xs font-normal text-slate-400 mt-1">
-                  ➔ {connections[p.key]}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-
-        {/* Cột phải */}
-        <div className="space-y-2">
-          {/* Tráo ngẫu nhiên cột phải để học viên tự chọn */}
-          {question.pairs.map((p, idx) => {
-            const isTargeted = Object.values(connections).includes(p.value);
-            return (
-              <button
-                key={idx}
-                type="button"
-                disabled={isSubmitted || isTargeted}
-                onClick={() => handleRightClick(p.value)}
-                className={`w-full text-left p-3 rounded-xl border text-sm transition-all ${
-                  isTargeted
-                    ? 'opacity-40 border-slate-100 dark:border-slate-800 cursor-not-allowed'
-                    : 'border-slate-200 dark:border-slate-800 hover:border-rose-500'
-                }`}
-              >
-                {p.value}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {!isSubmitted && (
-        <div className="flex gap-2 justify-end">
-          <button
-            onClick={handleReset}
-            className="text-xs font-bold text-slate-500 hover:underline"
-          >
-            Làm lại liên kết
-          </button>
-          {isAllConnected && (
-            <button
-              onClick={() => onSubmit(connections)}
-              className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all"
-            >
-              Nộp kết quả ghép cặp
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ==========================================
-// 6. EXAM VIEW (CHẾ ĐỘ THI THỬ CHUYÊN NGHIỆP)
-// ==========================================
-function ExamView({ userProgress, setUserProgress }) {
-  const [examState, setExamState] = useState('config'); // config | running | result
-  const [examLength, setExamLength] = useState(20);
-  const [examQuestions, setExamQuestions] = useState([]);
-  const [currentExamIdx, setCurrentExamIdx] = useState(0);
-  const [answers, setAnswers] = useState({}); // idx -> selectedOption/text
-  const [timeLeft, setTimeLeft] = useState(0); // giây
-  const [timeTotal, setTimeTotal] = useState(0);
-
-  useEffect(() => {
-    let timer;
-    if (examState === 'running' && timeLeft > 0) {
-      timer = setInterval(() => {
-        setTimeLeft(t => t - 1);
-      }, 1000);
-    } else if (examState === 'running' && timeLeft === 0) {
-      handleSubmitExam();
-    }
-    return () => clearInterval(timer);
-  }, [examState, timeLeft]);
-
-  const startExam = (numQuestions) => {
-    setExamLength(numQuestions);
-    // Nhân bản và tráo ngẫu nhiên câu hỏi từ ngân hàng đề
-    // Ở thực tế sẽ chuẩn bị một ngân hàng đề lớn hơn, tạm thời dùng QUESTIONS nhân bản
-    let pool = [...QUESTIONS];
-    while (pool.length < numQuestions) {
-      pool = [...pool, ...QUESTIONS.map((q, idx) => ({ ...q, id: `dup-${idx}-${pool.length}` }))];
-    }
-    const selected = pool.sort(() => Math.random() - 0.5).slice(0, numQuestions);
-    setExamQuestions(selected);
-    setCurrentExamIdx(0);
-    setAnswers({});
-    const allocatedTime = numQuestions * 60; // 1 phút mỗi câu
-    setTimeLeft(allocatedTime);
-    setTimeTotal(allocatedTime);
-    setExamState('running');
-  };
-
-  const handleSelectAnswer = (ans) => {
-    setAnswers(prev => ({
-      ...prev,
-      [currentExamIdx]: ans
-    }));
-  };
-
-  const handleSubmitExam = () => {
-    setExamState('result');
-    // Tính toán kết quả
-    let correctCount = 0;
-    examQuestions.forEach((q, idx) => {
-      const userAns = answers[idx];
-      if (q.type === 'fill_blank') {
-        const cleanAns = (userAns || '').trim().toLowerCase();
-        const isCorrect = cleanAns === q.answer.toLowerCase() || 
-                          (q.acceptableAnswers && q.acceptableAnswers.some(a => a.toLowerCase() === cleanAns));
-        if (isCorrect) correctCount++;
-      } else {
-        if (userAns === q.answer) correctCount++;
-      }
-    });
-
-    // Lưu vào lịch sử tiến trình học
-    setUserProgress(prev => ({
-      ...prev,
-      history: [
-        ...prev.history,
-        {
-          date: Date.now(),
-          score: correctCount,
-          total: examLength,
-          type: 'exam'
-        }
-      ]
-    }));
-  };
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  return (
-    <div className="max-w-4xl mx-auto animate-fadeIn">
-      {examState === 'config' && (
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 text-center space-y-6">
-          <span className="text-5xl">⏱️</span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold">Hệ Thống Thi Thử Giải Phẫu Đại Cương</h2>
-          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto text-sm leading-relaxed">
-            Mô phỏng áp lực phòng thi chính thức tại giảng đường Y khoa. Các câu hỏi được đảo ngẫu nhiên và tính giờ nghiêm ngặt.
-          </p>
-
-          <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
-            {[20, 50, 100].map((num) => (
-              <button
-                key={num}
-                onClick={() => startExam(num)}
-                className="bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800 hover:bg-rose-600 hover:text-white transition-all p-4 rounded-2xl font-bold"
-              >
-                {num} câu
-                <span className="block text-xs font-normal opacity-70 mt-1">{num} phút</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {examState === 'running' && (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Menu điều hướng câu hỏi */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 h-fit space-y-4">
-            <div className="text-center">
-              <span className="text-xs text-slate-400 uppercase font-semibold">Thời gian còn lại</span>
-              <p className="text-3xl font-mono font-bold text-rose-600 mt-1">{formatTime(timeLeft)}</p>
-            </div>
-
-            <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
-              <span className="text-xs text-slate-400 font-semibold block mb-3">Danh sách câu hỏi</span>
-              <div className="grid grid-cols-5 gap-2">
-                {examQuestions.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentExamIdx(idx)}
-                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-                      currentExamIdx === idx
-                        ? 'bg-rose-600 text-white ring-2 ring-rose-500/20'
-                        : answers[idx]
-                          ? 'bg-emerald-100 dark:bg-emerald-950/55 text-emerald-700 dark:text-emerald-400'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
-                    }`}
-                  >
-                    {idx + 1}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button
-              onClick={handleSubmitExam}
-              className="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-2xl transition-all shadow-md mt-4 text-sm"
-            >
-              Nộp Bài Thi
-            </button>
-          </div>
-
-          {/* Câu hỏi hiện tại */}
-          <div className="lg:col-span-3 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 space-y-6">
-            <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>Đề thi giải phẫu {examLength} câu</span>
-              <span>Đã làm: {Object.keys(answers).length}/{examLength}</span>
-            </div>
-
-            <h3 className="text-lg sm:text-xl font-bold leading-relaxed">
-              Câu {currentExamIdx + 1}: {examQuestions[currentExamIdx].question}
-            </h3>
-
-            {examQuestions[currentExamIdx].image && (
-              <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 max-h-72 flex justify-center bg-slate-50">
-                <img src={examQuestions[currentExamIdx].image} alt="Giải phẫu học" className="object-contain max-h-72" />
-              </div>
-            )}
-
-            <div className="space-y-2">
-              {examQuestions[currentExamIdx].type === 'fill_blank' ? (
-                <input
-                  type="text"
-                  placeholder="Nhập câu trả lời..."
-                  value={answers[currentExamIdx] || ''}
-                  onChange={(e) => handleSelectAnswer(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none"
-                />
-              ) : (
-                examQuestions[currentExamIdx].options.map((opt, oIdx) => {
-                  const isSelected = answers[currentExamIdx] === opt;
-                  return (
-                    <button
-                      key={oIdx}
-                      onClick={() => handleSelectAnswer(opt)}
-                      className={`w-full text-left p-4 rounded-xl border transition-all ${
-                        isSelected
-                          ? 'border-rose-500 bg-rose-500/5 ring-2 ring-rose-500/10 font-semibold'
-                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-400'
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  );
-                })
-              )}
-            </div>
-
-            <div className="flex justify-between items-center border-t border-slate-100 dark:border-slate-800 pt-6">
-              <button
-                disabled={currentExamIdx === 0}
-                onClick={() => setCurrentExamIdx(i => i - 1)}
-                className="text-sm font-semibold text-slate-500 hover:text-rose-500 disabled:opacity-35"
-              >
-                ◀ Câu trước
-              </button>
-              <button
-                disabled={currentExamIdx === examLength - 1}
-                onClick={() => setCurrentExamIdx(i => i + 1)}
-                className="text-sm font-semibold text-slate-500 hover:text-rose-500 disabled:opacity-35"
-              >
-                Câu tiếp ➔
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {examState === 'result' && (
-        <div className="space-y-6">
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 text-center space-y-4">
-            <span className="text-5xl">🏆</span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold">Kết Quả Bài Thi</h2>
-            
-            {/* Điểm số */}
-            <div className="inline-flex items-baseline gap-2 bg-rose-50 dark:bg-rose-950/20 px-6 py-3 rounded-2xl">
-              <span className="text-5xl font-black text-rose-600">
-                {examQuestions.filter((q, idx) => {
-                  const userAns = answers[idx];
-                  if (q.type === 'fill_blank') {
-                    const cleanAns = (userAns || '').trim().toLowerCase();
-                    return cleanAns === q.answer.toLowerCase() || 
-                           (q.acceptableAnswers && q.acceptableAnswers.some(a => a.toLowerCase() === cleanAns));
-                  }
-                  return userAns === q.answer;
-                }).length}
-              </span>
-              <span className="text-xl text-slate-400 font-bold">/ {examLength}</span>
-            </div>
-
-            <div className="flex justify-center gap-6 text-sm text-slate-500 dark:text-slate-400 pt-2">
-              <p>Thời gian làm bài: <strong className="text-slate-800 dark:text-slate-200">{formatTime(timeTotal - timeLeft)}</strong></p>
-              <p>Tỷ lệ chính xác: <strong className="text-slate-800 dark:text-slate-200">
-                {Math.round((examQuestions.filter((q, idx) => {
-                  const userAns = answers[idx];
-                  if (q.type === 'fill_blank') {
-                    const cleanAns = (userAns || '').trim().toLowerCase();
-                    return cleanAns === q.answer.toLowerCase() || 
-                           (q.acceptableAnswers && q.acceptableAnswers.some(a => a.toLowerCase() === cleanAns));
-                  }
-                  return userAns === q.answer;
-                }).length / examLength) * 100)}%
-              </strong></p>
-            </div>
-
-            <button
-              onClick={() => setExamState('config')}
-              className="bg-rose-600 hover:bg-rose-500 text-white font-bold px-6 py-3 rounded-2xl transition-all shadow-md text-sm mt-4"
-            >
-              Làm bài thi khác ➔
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ==========================================
-// 7. ANKI ANATOMY VIEW (IMAGE OCCLUSION ENGINE)
-// ==========================================
-function AnkiView({ userProgress, setUserProgress }) {
-  const [activeAnkiTab, setActiveAnkiTab] = useState('study'); // study | create
-  const [selectedCard, setSelectedCard] = useState(null);
-  const [currentOccIdx, setCurrentOccIdx] = useState(0);
-  const [showAnswer, setShowAnswer] = useState(false);
-
-  // Tạo mới thẻ
-  const [newTitle, setNewTitle] = useState('');
-  const [newImage, setNewImage] = useState('');
-  const [newOcclusions, setNewOcclusions] = useState([]);
-  const [currentLabel, setCurrentLabel] = useState('');
-
-  // Hỗ trợ vẽ điểm che
-  const containerRef = useRef(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
-  const [currentOccRect, setCurrentOccRect] = useState(null);
-
-  const handleStartDraw = (e) => {
-    if (activeAnkiTab !== 'create' || !containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setStartPos({ x, y });
-    setIsDrawing(true);
-  };
-
-  const handleDraw = (e) => {
-    if (!isDrawing || !containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const currentX = ((e.clientX - rect.left) / rect.width) * 100;
-    const currentY = ((e.clientY - rect.top) / rect.height) * 100;
-
-    setCurrentOccRect({
-      x: Math.min(startPos.x, currentX),
-      y: Math.min(startPos.y, currentY),
-      w: Math.abs(currentX - startPos.x),
-      h: Math.abs(currentY - startPos.y)
-    });
-  };
-
-  const handleEndDraw = () => {
-    if (!isDrawing) return;
-    setIsDrawing(false);
-    if (currentOccRect && (currentOccRect.w > 1 || currentOccRect.h > 1)) {
-      setNewOcclusions(prev => [
-        ...prev,
-        {
-          id: `occ-${Date.now()}`,
-          ...currentOccRect,
-          label: currentLabel || `Nhãn cấu trúc #${prev.length + 1}`
-        }
-      ]);
-      setCurrentLabel('');
-    }
-    setCurrentOccRect(null);
-  };
-
-  const handleAddAnkiCard = () => {
-    if (!newTitle || !newImage || newOcclusions.length === 0) return;
-    const newCard = {
-      id: `card-${Date.now()}`,
-      title: newTitle,
-      image: newImage,
-      occlusions: newOcclusions,
-      history: {}
-    };
-
-    setUserProgress(prev => ({
-      ...prev,
-      ankiCards: [...prev.ankiCards, newCard]
-    }));
-
-    // Reset Form
-    setNewTitle('');
-    setNewImage('');
-    setNewOcclusions([]);
-    setActiveAnkiTab('study');
-  };
-
-  // Tính điểm đánh giá Spaced Repetition cho nhãn
-  const handleRateRetention = (quality) => {
-    if (!selectedCard) return;
-
-    const currentOcc = selectedCard.occlusions[currentOccIdx];
-    const prevHistory = selectedCard.history?.[currentOcc.id] || {
-      repetitions: 0,
-      interval: 1,
-      easeFactor: 2.5
-    };
-
-    const sm2 = calculateSM2(quality, prevHistory.repetitions, prevHistory.interval, prevHistory.easeFactor);
-
-    setUserProgress(prev => {
-      const updatedCards = prev.ankiCards.map(c => {
-        if (c.id === selectedCard.id) {
-          return {
-            ...c,
-            history: {
-              ...c.history,
-              [currentOcc.id]: sm2
             }
-          };
         }
-        return c;
-      });
+    </script>
+    <style>
+        body { background-color: #f8fafc; overflow-x: hidden; }
+        .target-dot {
+            transition: all 0.2s ease;
+            transform: translate(-50%, -50%);
+        }
+        .target-dot:hover { transform: translate(-50%, -50%) scale(1.2); }
+        .pulsate { animation: pulse-border 1.5s infinite; }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(20, 184, 166, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0); }
+        }
+        /* Custom scrollbar for label list */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px;}
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-      return { ...prev, ankiCards: updatedCards };
-    });
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
 
-    // Chuyển sang nhãn tiếp theo
-    setShowAnswer(false);
-    if (currentOccIdx + 1 < selectedCard.occlusions.length) {
-      setCurrentOccIdx(currentOccIdx + 1);
-    } else {
-      setSelectedCard(null);
-      setCurrentOccIdx(0);
-    }
-  };
+        // --- DỮ LIỆU GIẢI PHẪU (ANATOMY DATA) ---
+        const DATABASE = {
+            skeletal: {
+                name: "Hệ Xương",
+                icon: "ph-bone",
+                image: "https://placehold.co/400x800/e2e8f0/475569?text=M%C3%B4+h%C3%ACnh+H%E1%BB%87+X%C6%B0%C6%A1ng", // Placeholder for actual human body image
+                items: [
+                    { id: 'skull', name: 'Xương sọ', x: 50, y: 12, desc: 'Bảo vệ não bộ và tạo hình khuôn mặt.' },
+                    { id: 'clavicle', name: 'Xương đòn', x: 35, y: 22, desc: 'Nối xương ức với xương bả vai.' },
+                    { id: 'ribs', name: 'Lồng ngực', x: 50, y: 35, desc: 'Bảo vệ tim, phổi và hỗ trợ hô hấp.' },
+                    { id: 'spine', name: 'Cột sống', x: 50, y: 48, desc: 'Trục nâng đỡ cơ thể, bảo vệ tủy sống.' },
+                    { id: 'pelvis', name: 'Xương chậu', x: 50, y: 58, desc: 'Chuyển trọng lượng từ thân xuống chân.' },
+                    { id: 'femur', name: 'Xương đùi', x: 40, y: 72, desc: 'Xương dài và khỏe nhất cơ thể người.' },
+                    { id: 'humerus', name: 'Xương cánh tay', x: 25, y: 38, desc: 'Nối bả vai với khuỷu tay.' },
+                ]
+            },
+            digestive: {
+                name: "Hệ Tiêu Hóa",
+                icon: "ph-stomach",
+                image: "https://placehold.co/400x800/fecdd3/881337?text=M%C3%B4+h%C3%ACnh+H%E1%BB%87+Ti%C3%AAu+H%C3%B3a",
+                items: [
+                    { id: 'esophagus', name: 'Thực quản', x: 50, y: 25, desc: 'Ống dẫn thức ăn từ miệng xuống dạ dày.' },
+                    { id: 'liver', name: 'Gan', x: 40, y: 42, desc: 'Lọc máu, tiết mật và chuyển hóa chất.' },
+                    { id: 'stomach', name: 'Dạ dày', x: 60, y: 45, desc: 'Nơi chứa và tiêu hóa sơ bộ thức ăn.' },
+                    { id: 'pancreas', name: 'Tuyến tụy', x: 55, y: 50, desc: 'Tiết dịch tiêu hóa và hormone insulin.' },
+                    { id: 'large_intestine', name: 'Ruột già', x: 50, y: 60, desc: 'Hấp thụ nước và tạo phân.' },
+                    { id: 'small_intestine', name: 'Ruột non', x: 50, y: 70, desc: 'Hấp thụ phần lớn chất dinh dưỡng.' },
+                ]
+            }
+        };
 
-  return (
-    <div className="space-y-6 animate-fadeIn">
-      {/* Sub menu Anki */}
-      <div className="flex border-b border-slate-200 dark:border-slate-800">
-        <button
-          onClick={() => { setActiveAnkiTab('study'); setSelectedCard(null); }}
-          className={`pb-4 px-6 font-bold text-sm border-b-2 transition-all ${
-            activeAnkiTab === 'study' ? 'border-rose-600 text-rose-600' : 'border-transparent text-slate-400'
-          }`}
-        >
-          🎴 Thẻ Đang Ôn Tập
-        </button>
-        <button
-          onClick={() => setActiveAnkiTab('create')}
-          className={`pb-4 px-6 font-bold text-sm border-b-2 transition-all ${
-            activeAnkiTab === 'create' ? 'border-rose-600 text-rose-600' : 'border-transparent text-slate-400'
-          }`}
-        >
-          ➕ Tạo Thẻ Che Nhãn (Image Occlusion)
-        </button>
-      </div>
+        const GAME_MODES = {
+            PRACTICE: 'Luyện tập',
+            CHALLENGE: 'Thử thách'
+        };
 
-      {/* CHẾ ĐỘ 1: HỌC TẬP THẺ ANKI */}
-      {activeAnkiTab === 'study' && (
-        <div>
-          {!selectedCard ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {userProgress.ankiCards.map((card) => (
-                <div key={card.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm flex flex-col justify-between">
-                  <div className="relative h-48 bg-slate-100 dark:bg-slate-950">
-                    <img src={card.image} alt={card.title} className="w-full h-full object-cover" />
-                    <div className="absolute top-3 right-3 bg-slate-900/70 backdrop-blur-md text-white text-xs px-2.5 py-1 rounded-full font-bold">
-                      {card.occlusions.length} nhãn che
-                    </div>
-                  </div>
-                  <div className="p-5 flex-1 flex flex-col justify-between">
-                    <div>
-                      <h4 className="font-bold text-base leading-tight mb-2">{card.title}</h4>
-                      <p className="text-xs text-slate-400">Tạo bởi cộng đồng sinh viên Anatomy Pro</p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setSelectedCard(card);
-                        setCurrentOccIdx(0);
-                        setShowAnswer(false);
-                      }}
-                      className="w-full mt-4 bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl transition-all text-sm"
-                    >
-                      Bắt đầu ôn tập ➔
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm p-6 space-y-6">
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={() => setSelectedCard(null)}
-                  className="text-xs font-bold text-slate-400 hover:text-slate-600"
-                >
-                  ◀ Trở về danh sách
-                </button>
-                <span className="text-xs font-mono font-bold text-rose-500">
-                  Nhãn {currentOccIdx + 1} / {selectedCard.occlusions.length}
-                </span>
-              </div>
+        // --- COMPONENTS ---
 
-              <h3 className="font-bold text-lg">{selectedCard.title}</h3>
-
-              {/* KHU VỰC HIỂN THỊ HÌNH ẢNH CHE NHÃN */}
-              <div className="relative border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-950">
-                <img src={selectedCard.image} alt={selectedCard.title} className="w-full h-auto select-none" />
-
-                {/* Render tất cả các điểm che nhãn */}
-                {selectedCard.occlusions.map((occ, idx) => {
-                  const isActive = currentOccIdx === idx;
-                  return (
-                    <div
-                      key={occ.id}
-                      className={`absolute border transition-all ${
-                        isActive
-                          ? showAnswer
-                            ? 'bg-emerald-500/30 border-emerald-500 animate-pulse'
-                            : 'bg-rose-600 border-rose-500 ring-4 ring-rose-500/20'
-                          : 'bg-slate-800/80 border-slate-700 opacity-60'
-                      }`}
-                      style={{
-                        left: `${occ.x}%`,
-                        top: `${occ.y}%`,
-                        width: `${occ.w}%`,
-                        height: `${occ.h}%`,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {/* Hiển thị kết quả khi người dùng chọn xem đáp án */}
-                      {isActive && showAnswer && (
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs font-bold px-2 py-1 rounded whitespace-nowrap mb-1 z-10">
-                          {occ.label}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {!showAnswer ? (
-                <button
-                  onClick={() => setShowAnswer(true)}
-                  className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-4 rounded-2xl transition-all shadow-md text-sm text-center"
-                >
-                  Lật thẻ che nhãn (Show Answer)
-                </button>
-              ) : (
-                <div className="space-y-4 animate-slideUp">
-                  <div className="text-center bg-emerald-50 dark:bg-emerald-950/20 p-4 rounded-2xl">
-                    <span className="text-xs text-emerald-600 font-bold uppercase tracking-wider block">Đáp án chính xác là</span>
-                    <strong className="text-lg text-slate-800 dark:text-slate-200 mt-1 block">
-                      {selectedCard.occlusions[currentOccIdx].label}
-                    </strong>
-                  </div>
-
-                  <div className="space-y-2">
-                    <span className="text-xs font-bold text-slate-400 block text-center">Độ nhớ của bạn đối với nhãn này?</span>
-                    <div className="grid grid-cols-4 gap-2">
-                      {[
-                        { val: 1, label: 'Lại (Again)', style: 'bg-rose-500 text-white' },
-                        { val: 2.5, label: 'Khó (Hard)', style: 'bg-amber-500 text-white' },
-                        { val: 4, label: 'Tốt (Good)', style: 'bg-emerald-600 text-white' },
-                        { val: 5, label: 'Dễ (Easy)', style: 'bg-blue-600 text-white' }
-                      ].map((item) => (
-                        <button
-                          key={item.val}
-                          onClick={() => handleRateRetention(item.val)}
-                          className={`py-3 rounded-xl font-bold text-xs transition-all ${item.style}`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* CHẾ ĐỘ 2: TẠO THẺ ANKI MỚI BẰNG HÌNH ẢNH TỰ UPLOAD VÀ CHE NHÃN */}
-      {activeAnkiTab === 'create' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Cài đặt cấu hình */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 space-y-4 h-fit">
-            <h3 className="font-bold text-base">Cấu hình Thẻ Giải Phẫu Mới</h3>
+        const App = () => {
+            const [gameState, setGameState] = useState('menu'); // menu, playing, results
+            const [selectedSystem, setSelectedSystem] = useState(null);
+            const [selectedMode, setSelectedMode] = useState(null);
             
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-400 uppercase">Tên bài học giải phẫu</label>
-              <input
-                type="text"
-                placeholder="Ví dụ: Định danh cơ chi trên cơ bản"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-rose-500 outline-none text-sm"
-              />
-            </div>
+            // Gameplay state
+            const [placedItems, setPlacedItems] = useState({}); // { targetId: itemId }
+            const [selectedLabelId, setSelectedLabelId] = useState(null);
+            const [timeLeft, setTimeLeft] = useState(0);
+            const [timerActive, setTimerActive] = useState(false);
+            const [scoreData, setScoreData] = useState(null);
 
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-400 uppercase">Đường dẫn hình ảnh (URL)</label>
-              <input
-                type="text"
-                placeholder="Dán link ảnh giải phẫu học..."
-                value={newImage}
-                onChange={(e) => setNewImage(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-rose-500 outline-none text-sm"
-              />
-              <p className="text-[10px] text-slate-400">Bạn có thể tìm kiếm ảnh cấu trúc giải phẫu học trên Google Images rồi dán URL vào đây.</p>
-            </div>
-
-            <div className="border-t border-slate-100 dark:border-slate-800 pt-4 space-y-3">
-              <label className="text-xs font-bold text-slate-400 uppercase block">Thiết lập nhãn che tiếp theo</label>
-              <input
-                type="text"
-                placeholder="Ví dụ: Xương cánh chậu, cơ may..."
-                value={currentLabel}
-                onChange={(e) => setCurrentLabel(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-rose-500 outline-none text-sm"
-              />
-              <p className="text-xs text-amber-600 font-medium">Nhập tên nhãn trước ➔ Nhấp giữ chuột trái và kéo vẽ hộp đỏ đè lên vị trí cần ẩn trên hình vẽ bên phải.</p>
-            </div>
-
-            <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
-              <h4 className="font-bold text-xs uppercase text-slate-400 mb-2">Hộp che nhãn đã vẽ ({newOcclusions.length})</h4>
-              <div className="space-y-2 max-h-36 overflow-y-auto">
-                {newOcclusions.map((occ, idx) => (
-                  <div key={occ.id} className="flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-lg">
-                    <span className="font-semibold">{idx + 1}. {occ.label}</span>
-                    <button
-                      onClick={() => setNewOcclusions(prev => prev.filter(o => o.id !== occ.id))}
-                      className="text-rose-500 hover:underline"
-                    >
-                      Xóa nhãn
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button
-              disabled={!newTitle || !newImage || newOcclusions.length === 0}
-              onClick={handleAddAnkiCard}
-              className="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3.5 rounded-2xl transition-all shadow-md text-sm text-center disabled:opacity-40"
-            >
-              Lưu toàn bộ thẻ Anki ➔
-            </button>
-          </div>
-
-          {/* Vùng tương tác vẽ hộp đè */}
-          <div className="bg-slate-100 dark:bg-slate-950 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 min-h-96 flex flex-col items-center justify-center relative">
-            {!newImage ? (
-              <p className="text-slate-400 text-sm max-w-xs text-center">Hãy cung cấp đường dẫn ảnh URL hợp lệ ở bảng bên trái trước để kích hoạt bộ lọc che nhãn vẽ tranh.</p>
-            ) : (
-              <div className="relative w-full">
-                <p className="text-xs text-slate-400 mb-2 text-center">Nhấn giữ chuột trái và vẽ hình hộp xung quanh nhãn giải phẫu để ẩn nó.</p>
-                <div
-                  ref={containerRef}
-                  onMouseDown={handleStartDraw}
-                  onMouseMove={handleDraw}
-                  onMouseUp={handleEndDraw}
-                  className="relative cursor-crosshair select-none border border-rose-500/20 rounded-2xl overflow-hidden bg-white"
-                >
-                  <img src={newImage} alt="Anatomy workspace" className="w-full h-auto pointer-events-none" />
-
-                  {/* Render các nhãn đã vẽ */}
-                  {newOcclusions.map((occ) => (
-                    <div
-                      key={occ.id}
-                      className="absolute bg-rose-600/60 border border-rose-500 flex items-center justify-center text-white text-[10px] font-bold"
-                      style={{
-                        left: `${occ.x}%`,
-                        top: `${occ.y}%`,
-                        width: `${occ.w}%`,
-                        height: `${occ.h}%`
-                      }}
-                    >
-                      ❓
-                    </div>
-                  ))}
-
-                  {/* Render hộp hiện tại đang vẽ */}
-                  {isDrawing && currentOccRect && (
-                    <div
-                      className="absolute bg-rose-500/40 border border-rose-500 border-dashed"
-                      style={{
-                        left: `${currentOccRect.x}%`,
-                        top: `${currentOccRect.y}%`,
-                        width: `${currentOccRect.w}%`,
-                        height: `${currentOccRect.h}%`
-                      }}
-                    ></div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ==========================================
-// 8. REVIEW BOX VIEW (HỘP ÔN TẬP CÂU HỎI SAI)
-// ==========================================
-function ReviewBoxView({ userProgress, setUserProgress }) {
-  const [activeReviewQ, setActiveReviewQ] = useState(null);
-  const [selectedReviewOpt, setSelectedReviewOpt] = useState('');
-  const [isReviewed, setIsReviewed] = useState(false);
-
-  // Lọc các câu hỏi sai theo lịch trình Spaced Repetition (Lưu ý: Chỉ ôn tập các câu có lịch hẹn nhỏ hơn hoặc bằng thời gian hiện tại)
-  const now = Date.now();
-  const queue = Object.values(userProgress.incorrectQuestions).filter(
-    q => q.nextDueDate && q.nextDueDate <= now
-  );
-
-  const handleNextReview = () => {
-    setActiveReviewQ(null);
-    setSelectedReviewOpt('');
-    setIsReviewed(false);
-  };
-
-  const handleReviewAnswer = (ans) => {
-    if (isReviewed) return;
-    setSelectedReviewOpt(ans);
-
-    const isCorrect = activeReviewQ.question.type === 'fill_blank'
-      ? ans.trim().toLowerCase() === activeReviewQ.question.answer.toLowerCase() || (activeReviewQ.question.acceptableAnswers && activeReviewQ.question.acceptableAnswers.some(a => a.toLowerCase() === ans.trim().toLowerCase()))
-      : ans === activeReviewQ.question.answer;
-
-    // Đánh giá lại Spaced Repetition cho câu hỏi vừa học
-    // Nếu đúng: đánh giá chất lượng là 4 (Tốt). Nếu sai: đánh giá chất lượng là 1 (Cần học lại)
-    const quality = isCorrect ? 4 : 1;
-    const sm2 = calculateSM2(quality, activeReviewQ.repetitions, activeReviewQ.interval, activeReviewQ.easeFactor);
-
-    setUserProgress(prev => {
-      const nextIncorrect = { ...prev.incorrectQuestions };
-      
-      if (isCorrect) {
-        // Nếu đã nhớ vững chắc, có thể xóa dần hoặc đẩy lịch cực xa
-        nextIncorrect[activeReviewQ.question.id] = {
-          ...activeReviewQ,
-          ...sm2
-        };
-      } else {
-        // Nếu tiếp tục sai, reset chu trình học lại vào ngày mai
-        nextIncorrect[activeReviewQ.question.id] = {
-          ...activeReviewQ,
-          ...sm2,
-          count: activeReviewQ.count + 1
-        };
-      }
-
-      return { ...prev, incorrectQuestions: nextIncorrect };
-    });
-
-    setIsReviewed(true);
-  };
-
-  if (queue.length === 0) {
-    return (
-      <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-8 text-center space-y-4">
-        <span className="text-5xl">🎉</span>
-        <h2 className="text-2xl font-bold">Hộp Ôn Tập Sạch Sẽ!</h2>
-        <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto">
-          Tuyệt vời! Bạn không có câu hỏi sai nào cần ôn tập vào hôm nay theo đúng lịch Spaced Repetition (1, 3, 7, 14, 30 ngày).
-        </p>
-      </div>
-    );
-  }
-
-  // Chọn câu đầu tiên trong hàng đợi ôn tập
-  const currentQ = activeReviewQ || queue[0];
-  if (!activeReviewQ) setActiveReviewQ(currentQ);
-
-  return (
-    <div className="max-w-2xl mx-auto space-y-6 animate-fadeIn">
-      <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 px-6 py-4 rounded-2xl flex items-center gap-3">
-        <span className="text-xl">🔄</span>
-        <div>
-          <h4 className="font-bold text-amber-800 dark:text-amber-400 text-sm">Hộp Ôn Tập Spaced Repetition</h4>
-          <p className="text-xs text-amber-700 dark:text-amber-500">
-            Bạn đang có <strong className="underline">{queue.length} câu</strong> cần sửa chữa sai lầm hôm nay theo thuật toán ghi nhớ.
-          </p>
-        </div>
-      </div>
-
-      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
-        <span className="bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 text-xs font-bold px-3 py-1 rounded-full uppercase">
-          Ôn tập câu hỏi sai trước đây
-        </span>
-
-        <h3 className="text-lg sm:text-xl font-bold leading-relaxed">{currentQ.question.question}</h3>
-
-        {currentQ.question.image && (
-          <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 max-h-72 flex justify-center bg-slate-50">
-            <img src={currentQ.question.image} alt="Giải phẫu học" className="object-contain max-h-72" />
-          </div>
-        )}
-
-        <div className="space-y-2">
-          {currentQ.question.type === 'fill_blank' ? (
-            <div>
-              {!isReviewed ? (
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Nhập câu trả lời..."
-                    value={selectedReviewOpt}
-                    onChange={(e) => setSelectedReviewOpt(e.target.value)}
-                    className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-rose-500 outline-none"
-                    onKeyDown={(e) => e.key === 'Enter' && handleReviewAnswer(selectedReviewOpt)}
-                  />
-                  <button
-                    onClick={() => handleReviewAnswer(selectedReviewOpt)}
-                    className="bg-rose-600 hover:bg-rose-500 text-white font-bold px-6 py-3 rounded-2xl transition-all"
-                  >
-                    Gửi
-                  </button>
-                </div>
-              ) : (
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800">
-                  <p className="text-sm font-bold">Câu của bạn: {selectedReviewOpt}</p>
-                  <p className="text-sm text-slate-500 mt-1">Chuẩn: <strong className="underline text-emerald-600">{currentQ.question.answer}</strong></p>
-                </div>
-              )}
-            </div>
-          ) : (
-            currentQ.question.options.map((opt, oIdx) => {
-              const isSelected = selectedReviewOpt === opt;
-              const isCorrectOpt = opt === currentQ.question.answer;
-
-              let btnStyle = 'border-slate-200 dark:border-slate-800 hover:border-amber-500';
-              if (isReviewed) {
-                if (isCorrectOpt) {
-                  btnStyle = 'bg-emerald-500/10 border-emerald-500 text-emerald-700 dark:text-emerald-400 font-bold';
-                } else if (isSelected) {
-                  btnStyle = 'bg-rose-500/10 border-rose-500 text-rose-700 dark:text-rose-400';
-                } else {
-                  btnStyle = 'opacity-40 border-slate-100 dark:border-slate-800';
+            // Timer logic
+            useEffect(() => {
+                let interval;
+                if (timerActive && timeLeft > 0) {
+                    interval = setInterval(() => {
+                        setTimeLeft(prev => prev - 1);
+                    }, 1000);
+                } else if (timerActive && timeLeft === 0) {
+                    setTimerActive(false);
+                    submitGame(); // Auto submit when time runs out
                 }
-              } else if (isSelected) {
-                btnStyle = 'border-amber-500 bg-amber-500/5 ring-2 ring-amber-500/15';
-              }
+                return () => clearInterval(interval);
+            }, [timerActive, timeLeft]);
 
-              return (
-                <button
-                  key={oIdx}
-                  disabled={isReviewed}
-                  onClick={() => handleReviewAnswer(opt)}
-                  className={`w-full text-left p-4 rounded-xl border transition-all ${btnStyle}`}
-                >
-                  {opt}
-                </button>
-              );
-            })
-          )}
-        </div>
+            const startGame = (systemId, mode) => {
+                setSelectedSystem(systemId);
+                setSelectedMode(mode);
+                setPlacedItems({});
+                setSelectedLabelId(null);
+                setScoreData(null);
+                setGameState('playing');
 
-        {isReviewed && (
-          <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800 animate-slideUp">
-            <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs leading-relaxed text-slate-600 dark:text-slate-400 space-y-1">
-              <p>💡 <strong>Mẹo ghi nhớ:</strong> {currentQ.question.explanation.tip}</p>
-              <p>🏥 <strong>Lâm sàng:</strong> {currentQ.question.explanation.clinical}</p>
-            </div>
+                if (mode === GAME_MODES.CHALLENGE) {
+                    setTimeLeft(DATABASE[systemId].items.length * 10); // 10 seconds per item
+                    setTimerActive(true);
+                } else {
+                    setTimeLeft(0);
+                    setTimerActive(false);
+                }
+            };
 
-            <button
-              onClick={handleNextReview}
-              className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-3 rounded-2xl transition-all shadow-md text-sm text-center"
-            >
-              Tiếp tục ôn câu tiếp theo ➔
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+            const handleLabelClick = (item) => {
+                // If it's already placed, remove it
+                const placedTarget = Object.keys(placedItems).find(key => placedItems[key] === item.id);
+                if (placedTarget) {
+                    const newPlaced = { ...placedItems };
+                    delete newPlaced[placedTarget];
+                    setPlacedItems(newPlaced);
+                    setSelectedLabelId(null);
+                    return;
+                }
+
+                // Select for placement
+                setSelectedLabelId(item.id === selectedLabelId ? null : item.id);
+            };
+
+            const handleTargetClick = (targetItem) => {
+                if (selectedLabelId) {
+                    // Place the selected label here
+                    setPlacedItems(prev => {
+                        const newPlaced = { ...prev };
+                        // Remove if this label is placed elsewhere
+                        const existingTarget = Object.keys(newPlaced).find(key => newPlaced[key] === selectedLabelId);
+                        if (existingTarget) delete newPlaced[existingTarget];
+                        
+                        newPlaced[targetItem.id] = selectedLabelId;
+                        return newPlaced;
+                    });
+                    setSelectedLabelId(null); // Deselect after placing
+                } else if (placedItems[targetItem.id]) {
+                    // Clicked a filled target without a selected label -> remove the label
+                    setPlacedItems(prev => {
+                        const newPlaced = { ...prev };
+                        delete newPlaced[targetItem.id];
+                        return newPlaced;
+                    });
+                }
+            };
+
+            const submitGame = () => {
+                setTimerActive(false);
+                const system = DATABASE[selectedSystem];
+                let correctCount = 0;
+                const results = system.items.map(item => {
+                    const userPlacedId = placedItems[item.id];
+                    const isCorrect = userPlacedId === item.id;
+                    if (isCorrect) correctCount++;
+                    return {
+                        ...item,
+                        userAnswerId: userPlacedId,
+                        isCorrect: isCorrect
+                    };
+                });
+
+                const total = system.items.length;
+                let score100 = Math.round((correctCount / total) * 100);
+                
+                // Bonus points for challenge mode
+                let timeBonus = 0;
+                if (selectedMode === GAME_MODES.CHALLENGE && correctCount === total) {
+                    timeBonus = timeLeft * 2;
+                    score100 += timeBonus;
+                }
+
+                setScoreData({
+                    correct: correctCount,
+                    total: total,
+                    score: score100,
+                    results: results,
+                    timeBonus: timeBonus
+                });
+                setGameState('results');
+            };
+
+            const resetGame = () => {
+                setGameState('menu');
+            };
+
+            if (gameState === 'menu') {
+                return (
+                    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-medical-50 to-slate-100 p-4">
+                        <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-8">
+                            <div className="text-center mb-10">
+                                <i className="ph-fill ph-heartbeat text-5xl text-medical-500 mb-4 inline-block"></i>
+                                <h1 className="text-4xl font-extrabold text-slate-800 mb-2 tracking-tight">Anatomy Match</h1>
+                                <p className="text-slate-500">Khám phá cơ thể người qua trò chơi ghép nối tương tác</p>
+                            </div>
+
+                            <div className="space-y-8">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-slate-700 mb-4 flex items-center">
+                                        <i className="ph ph-books text-xl mr-2 text-medical-500"></i>
+                                        1. Chọn hệ cơ quan
+                                    </h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {Object.entries(DATABASE).map(([key, data]) => (
+                                            <button 
+                                                key={key}
+                                                onClick={() => setSelectedSystem(key)}
+                                                className={`p-4 rounded-xl border-2 text-left transition-all flex items-center ${selectedSystem === key ? 'border-medical-500 bg-medical-50 text-medical-900 shadow-md' : 'border-slate-200 hover:border-medical-300 hover:bg-slate-50'}`}
+                                            >
+                                                <div className={`w-12 h-12 rounded-full flex items-center justify-center mr-4 ${selectedSystem === key ? 'bg-medical-500 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                                                    <i className={`${data.icon} text-2xl`}></i>
+                                                </div>
+                                                <span className="font-semibold text-lg">{data.name}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-lg font-semibold text-slate-700 mb-4 flex items-center">
+                                        <i className="ph ph-game-controller text-xl mr-2 text-medical-500"></i>
+                                        2. Chọn chế độ chơi
+                                    </h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <button 
+                                            disabled={!selectedSystem}
+                                            onClick={() => startGame(selectedSystem, GAME_MODES.PRACTICE)}
+                                            className="p-4 rounded-xl border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                                        >
+                                            <div className="font-bold text-blue-600 mb-1 flex items-center">
+                                                <i className="ph-fill ph-barbell mr-2"></i> Luyện tập
+                                            </div>
+                                            <p className="text-sm text-slate-500">Không giới hạn thời gian, thoải mái thử sai.</p>
+                                        </button>
+                                        <button 
+                                            disabled={!selectedSystem}
+                                            onClick={() => startGame(selectedSystem, GAME_MODES.CHALLENGE)}
+                                            className="p-4 rounded-xl border-2 border-slate-200 hover:border-orange-400 hover:bg-orange-50 text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                                        >
+                                            <div className="font-bold text-orange-600 mb-1 flex items-center">
+                                                <i className="ph-fill ph-timer mr-2"></i> Thử thách
+                                            </div>
+                                            <p className="text-sm text-slate-500">Đua với thời gian, nhận điểm thưởng tốc độ.</p>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            const systemData = DATABASE[selectedSystem];
+            
+            // Helper to get name from ID for labels
+            const getLabelName = (id) => systemData.items.find(i => i.id === id)?.name || "";
+
+            return (
+                <div className="min-h-screen bg-slate-50 flex flex-col">
+                    {/* Header */}
+                    <header className="bg-white shadow-sm px-6 py-4 flex justify-between items-center z-10 relative">
+                        <div className="flex items-center space-x-4">
+                            <button onClick={resetGame} className="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition-colors">
+                                <i className="ph ph-arrow-left text-xl"></i>
+                            </button>
+                            <div>
+                                <h2 className="font-bold text-slate-800 text-lg">{systemData.name}</h2>
+                                <span className="text-xs font-medium px-2 py-1 bg-medical-100 text-medical-800 rounded-md">
+                                    {selectedMode}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        {/* Timer / Progress */}
+                        {gameState === 'playing' && selectedMode === GAME_MODES.CHALLENGE && (
+                            <div className={`flex items-center font-bold text-xl ${timeLeft < 10 ? 'text-red-500 pulsate' : 'text-slate-700'}`}>
+                                <i className="ph ph-clock mr-2"></i>
+                                {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                            </div>
+                        )}
+                        {gameState === 'playing' && selectedMode === GAME_MODES.PRACTICE && (
+                            <div className="text-slate-500 font-medium">
+                                Đã nối: {Object.keys(placedItems).length} / {systemData.items.length}
+                            </div>
+                        )}
+                    </header>
+
+                    {/* Main Content Area */}
+                    <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+                        
+                        {/* Left: Diagram Area */}
+                        <div className="flex-1 bg-slate-200 relative overflow-auto flex items-center justify-center p-4 border-r border-slate-300">
+                            <div className="relative w-full max-w-[400px] shadow-2xl rounded-lg overflow-hidden bg-white">
+                                <img src={systemData.image} alt={systemData.name} className="w-full h-auto block select-none pointer-events-none opacity-90" />
+                                
+                                {/* Overlay Target Dots */}
+                                {systemData.items.map((item, index) => {
+                                    const placedId = placedItems[item.id];
+                                    const isSelectedForDrop = selectedLabelId && !placedId;
+                                    
+                                    // Status colors for Results mode
+                                    let dotColor = "bg-white border-slate-400 text-slate-600";
+                                    if (gameState === 'results') {
+                                        const result = scoreData.results.find(r => r.id === item.id);
+                                        if (result.isCorrect) dotColor = "bg-green-500 border-green-600 text-white shadow-[0_0_15px_rgba(34,197,94,0.6)]";
+                                        else if (result.userAnswerId) dotColor = "bg-red-500 border-red-600 text-white"; // wrong answer placed
+                                        else dotColor = "bg-yellow-400 border-yellow-500 text-white"; // missed
+                                    } else if (placedId) {
+                                        dotColor = "bg-medical-500 border-medical-600 text-white shadow-md";
+                                    } else if (selectedLabelId) {
+                                        dotColor = "bg-yellow-200 border-yellow-400 text-yellow-700 pulsate cursor-pointer";
+                                    }
+
+                                    return (
+                                        <div 
+                                            key={`target-${item.id}`}
+                                            onClick={() => gameState === 'playing' && handleTargetClick(item)}
+                                            className={`absolute target-dot w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-sm z-10 transition-colors ${dotColor} ${gameState === 'playing' && !placedId ? 'cursor-pointer hover:bg-slate-100' : ''}`}
+                                            style={{ left: `${item.x}%`, top: `${item.y}%` }}
+                                            title={item.name}
+                                        >
+                                            {placedId ? (
+                                                <i className="ph-bold ph-check text-xs"></i>
+                                            ) : (
+                                                <span>{index + 1}</span>
+                                            )}
+                                            
+                                            {/* Show Label if placed */}
+                                            {placedId && gameState !== 'results' && (
+                                                <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs whitespace-nowrap px-2 py-1 rounded pointer-events-none">
+                                                    {getLabelName(placedId)}
+                                                </div>
+                                            )}
+                                            {/* Show Correct Label in results */}
+                                            {gameState === 'results' && (
+                                                 <div className={`absolute top-full mt-1 left-1/2 -translate-x-1/2 text-white text-xs whitespace-nowrap px-2 py-1 rounded font-semibold pointer-events-none ${scoreData.results.find(r=>r.id===item.id).isCorrect ? 'bg-green-600' : 'bg-slate-800'}`}>
+                                                    {item.name}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Right: Sidebar Area */}
+                        <div className="w-full md:w-[350px] bg-white flex flex-col shadow-[-4px_0_15px_rgba(0,0,0,0.05)] z-20">
+                            
+                            {gameState === 'playing' ? (
+                                <>
+                                    <div className="p-4 bg-slate-50 border-b border-slate-200">
+                                        <p className="text-sm text-slate-600 font-medium mb-2">
+                                            <i className="ph-fill ph-info mr-1 text-medical-500"></i> 
+                                            Hướng dẫn: Chạm vào tên cấu trúc, sau đó chạm vào vị trí số tương ứng trên hình.
+                                        </p>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                                        {/* Shuffle items array for display so they aren't in order */}
+                                        {useMemo(() => [...systemData.items].sort(() => Math.random() - 0.5), [selectedSystem]).map(item => {
+                                            const isPlaced = Object.values(placedItems).includes(item.id);
+                                            const isSelected = selectedLabelId === item.id;
+                                            
+                                            return (
+                                                <div 
+                                                    key={`label-${item.id}`}
+                                                    onClick={() => handleLabelClick(item)}
+                                                    className={`p-3 rounded-lg border-2 cursor-pointer transition-all flex justify-between items-center
+                                                        ${isPlaced ? 'bg-slate-100 border-slate-200 opacity-50' : 
+                                                          isSelected ? 'bg-medical-50 border-medical-500 shadow-md ring-2 ring-medical-200 ring-offset-1' : 
+                                                          'bg-white border-slate-200 hover:border-medical-300 hover:bg-slate-50'}`}
+                                                >
+                                                    <span className="font-semibold text-slate-700">{item.name}</span>
+                                                    {isPlaced && <i className="ph-fill ph-check-circle text-green-500 text-lg"></i>}
+                                                    {isSelected && <span className="text-xs bg-medical-500 text-white px-2 py-0.5 rounded-full">Đang chọn</span>}
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                    <div className="p-4 border-t border-slate-200 bg-white">
+                                        <button 
+                                            onClick={submitGame}
+                                            className="w-full py-3 bg-medical-600 hover:bg-medical-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex justify-center items-center"
+                                        >
+                                            <i className="ph-bold ph-flag-checkered mr-2 text-xl"></i>
+                                            Nộp bài
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                /* Results Panel */
+                                <div className="flex-1 flex flex-col overflow-hidden bg-slate-50">
+                                    <div className="p-6 text-center bg-white border-b border-slate-200">
+                                        <h3 className="text-2xl font-black text-slate-800 mb-1">Kết Quả</h3>
+                                        <div className="text-5xl font-black text-medical-500 my-4 flex items-end justify-center">
+                                            {scoreData.score} <span className="text-xl text-slate-400 font-medium ml-1">/100</span>
+                                        </div>
+                                        <div className="flex justify-center space-x-4 text-sm font-medium">
+                                            <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full"><i className="ph-fill ph-check-circle mr-1"></i> {scoreData.correct} đúng</div>
+                                            <div className="bg-red-100 text-red-800 px-3 py-1 rounded-full"><i className="ph-fill ph-x-circle mr-1"></i> {scoreData.total - scoreData.correct} sai</div>
+                                        </div>
+                                        {scoreData.timeBonus > 0 && (
+                                            <div className="mt-2 text-orange-600 font-bold text-sm bg-orange-50 inline-block px-3 py-1 rounded-full">
+                                                <i className="ph-fill ph-lightning"></i> Điểm thưởng tốc độ: +{scoreData.timeBonus}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                                        <h4 className="font-bold text-slate-700 flex items-center uppercase text-sm tracking-wider">
+                                            <i className="ph-bold ph-list-magnifying-glass mr-2"></i> Chi tiết & Giải thích
+                                        </h4>
+                                        {scoreData.results.map((result, idx) => (
+                                            <div key={`res-${result.id}`} className={`p-4 rounded-xl border ${result.isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <span className={`font-bold text-lg ${result.isCorrect ? 'text-green-800' : 'text-red-800'}`}>
+                                                        {idx + 1}. {result.name}
+                                                    </span>
+                                                    {result.isCorrect ? 
+                                                        <i className="ph-fill ph-check-circle text-xl text-green-500"></i> : 
+                                                        <i className="ph-fill ph-x-circle text-xl text-red-500"></i>
+                                                    }
+                                                </div>
+                                                
+                                                {!result.isCorrect && (
+                                                    <div className="text-sm text-red-600 mb-2 font-medium bg-white px-2 py-1 rounded border border-red-100 inline-block">
+                                                        Của bạn: <span className="line-through opacity-70">{getLabelName(result.userAnswerId) || 'Bỏ trống'}</span>
+                                                    </div>
+                                                )}
+                                                
+                                                <div className="text-slate-600 text-sm mt-1 flex items-start">
+                                                    <i className="ph-fill ph-lightbulb mt-0.5 mr-1.5 text-yellow-500"></i>
+                                                    {result.desc}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="p-4 border-t border-slate-200 bg-white space-y-2">
+                                        <button 
+                                            onClick={() => startGame(selectedSystem, selectedMode)}
+                                            className="w-full py-3 bg-medical-100 hover:bg-medical-200 text-medical-800 rounded-xl font-bold transition-all"
+                                        >
+                                            <i className="ph-bold ph-arrows-counter-clockwise mr-2"></i> Làm lại
+                                        </button>
+                                        <button 
+                                            onClick={resetGame}
+                                            className="w-full py-3 bg-white border-2 border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-bold transition-all"
+                                        >
+                                            Về Menu chính
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
